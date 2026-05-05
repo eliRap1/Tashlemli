@@ -1,7 +1,8 @@
 import { put, del, head } from "@vercel/blob";
 import { env } from "@/lib/env";
 
-export async function putPrivate(key: string, body: ArrayBuffer | Buffer | Blob, contentType: string) {
+/** POC: stored as public-readable blobs. Replace with signed-URL access for sensitive docs in a later phase. */
+export async function putPublic(key: string, body: ArrayBuffer | Buffer | Blob, contentType: string) {
   return await put(key, body, {
     access: "public",
     addRandomSuffix: false,
