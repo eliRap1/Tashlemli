@@ -6,7 +6,7 @@ import { UploadDropZone } from "@/components/check/UploadDropZone";
 import { ProcessingPipeline } from "@/components/check/ProcessingPipeline";
 import { RevealStage } from "@/components/check/RevealStage";
 import { ContactCaptureSheet } from "@/components/check/ContactCaptureSheet";
-import { ManualFallbackForm, type ManualFallbackHandle } from "@/components/check/ManualFallbackForm";
+import { ManualFallbackForm, type ManualFallbackHandle, type ManualResult } from "@/components/check/ManualFallbackForm";
 import { QuickRoutes } from "@/components/check/QuickRoutes";
 
 type Phase = "idle" | "uploading" | "processing" | "ready" | "failed";
@@ -33,8 +33,19 @@ export function CheckPageClient() {
     setPhase("processing");
   }
 
-  function handleManual(jid: string, url: string) {
-    setJobId(jid); setSseUrl(url); setPhase("processing");
+  function handleManualResult(out: ManualResult) {
+    setJobId(out.jobId);
+    if (!out.result.eligible) {
+      setPhase("failed");
+      setFailure(out.result.rejection_reason ?? "ineligible");
+      return;
+    }
+    setReveal({ amount_ils: out.result.amount_ils, passenger: out.passenger, flight: out.flight, route: out.route });
+    setPhase("ready");
+  }
+
+  function handleManualError(code: string) {
+    setPhase("failed"); setFailure(code);
   }
 
   function handleQuickPick(flight: string, date: string) {
@@ -57,7 +68,7 @@ export function CheckPageClient() {
             </div>
             <UploadDropZone onFile={handleFile} />
             <QuickRoutes onPick={handleQuickPick} />
-            <ManualFallbackForm ref={manualRef} onJob={handleManual} />
+            <ManualFallbackForm ref={manualRef} onResult={handleManualResult} onError={handleManualError} />
           </>
         )}
         {phase === "processing" && sseUrl && (
@@ -83,7 +94,7 @@ export function CheckPageClient() {
           <div className="font-heebo text-fluorescent/80 max-w-[32ch] text-center">
             <div className="font-mono text-cancellation text-xs uppercase tracking-[0.3em] mb-2">{failure ?? "FAIL"}</div>
             <div className="text-2xl font-bold mb-2">לא הצלחנו לאשר את הטיסה. נסי בעזרת מספר טיסה ידני.</div>
-            <ManualFallbackForm onJob={handleManual} />
+            <ManualFallbackForm onResult={handleManualResult} onError={handleManualError} />
           </div>
         )}
       </div>

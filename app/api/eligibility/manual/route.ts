@@ -5,8 +5,9 @@ import { eligibilityJobs } from "@/lib/db/schema/eligibility-jobs";
 import { eq } from "drizzle-orm";
 import { hashIp } from "@/lib/hash";
 
+// IATA airline codes can include digits (U2 = easyJet, LS = Jet2, 4U = Germanwings).
 const Body = z.object({
-  flight_number: z.string().regex(/^[A-Z]{2,3}\s?\d{1,4}$/i),
+  flight_number: z.string().regex(/^[A-Z0-9]{2,3}\s?\d{1,4}$/i),
   departure_date: z.string().date(),
   delay_minutes: z.number().int().min(0).max(72 * 60).optional(),
   cancellation: z.boolean().optional(),
@@ -37,18 +38,15 @@ export async function POST(req: Request) {
   }).returning();
   if (!job) return NextResponse.json({ error: "db_fail" }, { status: 500 });
 
-  // Run the pipeline inline so Vercel Functions does not kill the work after the
-  // response. Steps are fast (cached flight lookup + pure compute) so this is well
-  // within the function timeout.
+  // Run the pipeline inline. The manual flow is fast enough to complete within a
+  // single function invocation; we return the result directly so the client can
+  // jump straight to the reveal stage without depending on SSE delivery.
   const { lookupFlight, computeFacts } = await import("@/services/eligibility/lookup");
   const { compute } = await import("@/services/eligibility/engine");
   const { publishJobEvent } = await import("@/services/eligibility/publish");
   try {
-    await publishJobEvent(job.id, { kind: "looking_up" });
     const flight = await lookupFlight(parsed.data.flight_number, parsed.data.departure_date);
     const facts = computeFacts(flight);
-    await publishJobEvent(job.id, { kind: "looked_up", flight_id: flight.id });
-    await publishJobEvent(job.id, { kind: "computing" });
     const result = compute({
       distance_km: facts.distance_km,
       delay_minutes: parsed.data.delay_minutes ?? facts.delay_minutes,
@@ -58,17 +56,21 @@ export async function POST(req: Request) {
       flight_date: parsed.data.departure_date,
     });
     await db.update(eligibilityJobs).set({ status: "ready", flightId: flight.id, result }).where(eq(eligibilityJobs.id, job.id));
-    await publishJobEvent(job.id, {
-      kind: "ready",
+    const route = `${flight.departureIata ?? "TLV"} → ${flight.arrivalIata ?? "?"}`;
+    await publishJobEvent(job.id, { kind: "ready", result, passenger: "passenger", flight: parsed.data.flight_number, route });
+    return NextResponse.json({
+      jobId: job.id,
+      sseUrl: `/api/eligibility/${job.id}/sse`,
       result,
       passenger: "passenger",
       flight: parsed.data.flight_number,
-      route: `${flight.departureIata ?? "TLV"} → ${flight.arrivalIata ?? "?"}`,
+      route,
     });
   } catch (e: any) {
-    await db.update(eligibilityJobs).set({ status: "failed", failureCode: e.code ?? "MANUAL_FAIL" }).where(eq(eligibilityJobs.id, job.id));
-    await publishJobEvent(job.id, { kind: "failed", code: e.code ?? "MANUAL_FAIL", message: e.message ?? "fail" });
+    const code = e.code ?? "MANUAL_FAIL";
+    const message = e.message ?? "fail";
+    await db.update(eligibilityJobs).set({ status: "failed", failureCode: code }).where(eq(eligibilityJobs.id, job.id));
+    await publishJobEvent(job.id, { kind: "failed", code, message });
+    return NextResponse.json({ jobId: job.id, error: code, message }, { status: 502 });
   }
-
-  return NextResponse.json({ jobId: job.id, sseUrl: `/api/eligibility/${job.id}/sse` });
 }

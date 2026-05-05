@@ -3,14 +3,25 @@
 import { useImperativeHandle, useState, forwardRef } from "react";
 import { motion } from "motion/react";
 
-interface Props { onJob: (jobId: string, sseUrl: string) => void; }
+export interface ManualResult {
+  jobId: string;
+  result: { eligible: boolean; amount_ils: number; rejection_reason?: string };
+  passenger: string;
+  flight: string;
+  route: string;
+}
+
+interface Props {
+  onResult: (out: ManualResult) => void;
+  onError: (code: string) => void;
+}
 
 export interface ManualFallbackHandle {
   fill: (flight: string, date?: string) => void;
   submit: () => void;
 }
 
-export const ManualFallbackForm = forwardRef<ManualFallbackHandle, Props>(function ManualFallbackForm({ onJob }, ref) {
+export const ManualFallbackForm = forwardRef<ManualFallbackHandle, Props>(function ManualFallbackForm({ onResult, onError }, ref) {
   const today = new Date().toISOString().slice(0, 10);
   const [flight, setFlight] = useState("");
   const [date, setDate] = useState(today);
@@ -30,8 +41,8 @@ export const ManualFallbackForm = forwardRef<ManualFallbackHandle, Props>(functi
     });
     const j = await r.json();
     setBusy(false);
-    if (!r.ok) { setErr(j.error ?? "fail"); return; }
-    onJob(j.jobId, j.sseUrl);
+    if (!r.ok) { setErr(j.error ?? "fail"); onError(j.error ?? "fail"); return; }
+    onResult({ jobId: j.jobId, result: j.result, passenger: j.passenger, flight: j.flight, route: j.route });
   }
 
   useImperativeHandle(ref, () => ({
