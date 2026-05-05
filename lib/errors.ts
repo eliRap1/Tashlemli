@@ -3,9 +3,9 @@ export class AppError extends Error {
     public readonly code: string,
     message: string,
     public readonly httpStatus: number = 500,
-    public readonly cause?: unknown,
+    cause?: unknown,
   ) {
-    super(message);
+    super(message, cause === undefined ? undefined : { cause });
     this.name = "AppError";
   }
 }
