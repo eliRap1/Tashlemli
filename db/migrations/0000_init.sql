@@ -1,3 +1,5 @@
+CREATE EXTENSION IF NOT EXISTS citext;
+--> statement-breakpoint
 CREATE TABLE "airlines" (
 	"iata" text PRIMARY KEY NOT NULL,
 	"legal_name" text,
