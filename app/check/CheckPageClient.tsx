@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { CinematicSurface } from "@/components/CinematicSurface";
 import { UploadDropZone } from "@/components/check/UploadDropZone";
 import { ProcessingPipeline } from "@/components/check/ProcessingPipeline";
 import { RevealStage } from "@/components/check/RevealStage";
 import { ContactCaptureSheet } from "@/components/check/ContactCaptureSheet";
-import { ManualFallbackForm } from "@/components/check/ManualFallbackForm";
+import { ManualFallbackForm, type ManualFallbackHandle } from "@/components/check/ManualFallbackForm";
+import { QuickRoutes } from "@/components/check/QuickRoutes";
 
 type Phase = "idle" | "uploading" | "processing" | "ready" | "failed";
 
@@ -17,6 +18,7 @@ export function CheckPageClient() {
   const [reveal, setReveal] = useState<{ amount_ils: number; passenger: string; flight: string; route: string } | null>(null);
   const [failure, setFailure] = useState<string | null>(null);
   const [showCapture, setShowCapture] = useState(false);
+  const manualRef = useRef<ManualFallbackHandle>(null);
 
   async function handleFile(f: File) {
     setPhase("uploading");
@@ -35,6 +37,12 @@ export function CheckPageClient() {
     setJobId(jid); setSseUrl(url); setPhase("processing");
   }
 
+  function handleQuickPick(flight: string, date: string) {
+    manualRef.current?.fill(flight, date);
+    // Defer one tick so the input state is committed before submit reads it.
+    setTimeout(() => manualRef.current?.submit(), 50);
+  }
+
   return (
     <main className="relative min-h-screen overflow-hidden bg-terminal" dir="rtl">
       <CinematicSurface variant="terminal" grade="enr" className="absolute inset-0" />
@@ -48,7 +56,8 @@ export function CheckPageClient() {
               CHECK · 60 SECONDS · NO FORMS
             </div>
             <UploadDropZone onFile={handleFile} />
-            <ManualFallbackForm onJob={handleManual} />
+            <QuickRoutes onPick={handleQuickPick} />
+            <ManualFallbackForm ref={manualRef} onJob={handleManual} />
           </>
         )}
         {phase === "processing" && sseUrl && (
@@ -73,7 +82,7 @@ export function CheckPageClient() {
         {phase === "failed" && (
           <div className="font-heebo text-fluorescent/80 max-w-[32ch] text-center">
             <div className="font-mono text-cancellation text-xs uppercase tracking-[0.3em] mb-2">{failure ?? "FAIL"}</div>
-            <div className="text-2xl font-bold mb-2">לא הצלחנו לקרוא את הקובץ או לאשר את הטיסה.</div>
+            <div className="text-2xl font-bold mb-2">לא הצלחנו לאשר את הטיסה. נסי בעזרת מספר טיסה ידני.</div>
             <ManualFallbackForm onJob={handleManual} />
           </div>
         )}
