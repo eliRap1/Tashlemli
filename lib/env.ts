@@ -31,8 +31,28 @@ export function parseEnv(input: NodeJS.ProcessEnv | Record<string, unknown> = pr
 }
 
 let _env: Env | undefined;
+
+const isBuildPhase = process.env.NEXT_PHASE === "phase-production-build";
+
 export const env: Env = new Proxy({} as Env, {
   get(_t, prop) {
+    // During `next build`, page data collection imports modules that may read
+    // env at module-load time. Vercel does not surface project env vars to the
+    // build container by default, so strict validation would fail. Return raw
+    // process.env (or empty placeholders) and defer validation to runtime.
+    if (isBuildPhase) {
+      const key = prop as string;
+      const raw = process.env[key];
+      if (raw !== undefined) return raw;
+      if (key === "NODE_ENV") return "production";
+      // SDKs frequently validate URLs/emails at construction. Return shape-valid
+      // placeholders so module-load code in routes doesn't throw during the
+      // build collect-page-data phase. Real values are required at runtime.
+      if (key === "DATABASE_URL") return "postgres://stub:stub@localhost:5432/stub";
+      if (key.endsWith("_URL")) return "https://stub.example.com";
+      if (key === "RESEND_FROM") return "stub@example.com";
+      return "build_placeholder";
+    }
     if (!_env) _env = parseEnv();
     return (_env as Record<string | symbol, unknown>)[prop];
   },
