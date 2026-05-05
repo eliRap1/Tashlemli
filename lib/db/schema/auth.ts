@@ -20,15 +20,19 @@ export const magicLinkTokens = pgTable(
   (t) => ({ userExpIdx: index("mlt_user_exp_idx").on(t.userId, t.expiresAt) }),
 );
 
-export const sessions = pgTable("sessions", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
-  expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
-  ipHash: text("ip_hash"),
-  userAgent: text("user_agent"),
-  revokedAt: timestamp("revoked_at", { withTimezone: true }),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-});
+export const sessions = pgTable(
+  "sessions",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+    expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+    ipHash: text("ip_hash"),
+    userAgent: text("user_agent"),
+    revokedAt: timestamp("revoked_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => ({ userExpIdx: index("sessions_user_exp_idx").on(t.userId, t.expiresAt) }),
+);
 
 export type MagicLinkToken = typeof magicLinkTokens.$inferSelect;
 export type Session = typeof sessions.$inferSelect;
