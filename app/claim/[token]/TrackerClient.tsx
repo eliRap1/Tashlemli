@@ -6,6 +6,7 @@ import { TrackerMap } from "@/components/tracker/TrackerMap";
 import { TrackerHud } from "@/components/tracker/TrackerHud";
 import { TrackerTimeline } from "@/components/tracker/TrackerTimeline";
 import { CinematicSurface } from "@/components/CinematicSurface";
+import { EventReveal } from "@/components/tracker/EventReveal";
 
 export function TrackerClient({ view: initial, token }: { view: PublicClaimView; token: string }) {
   const [events, setEvents] = useState<PublicEvent[]>(initial.events);
@@ -30,6 +31,7 @@ export function TrackerClient({ view: initial, token }: { view: PublicClaimView;
       <TrackerMap view={view} latest={latest} />
       <TrackerHud view={view} latest={latest} />
       <TrackerTimeline events={events} />
+      <EventReveal latest={latest} />
     </main>
   );
 }
