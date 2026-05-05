@@ -13,3 +13,4 @@ export const poaSignatures = pgTable("poa_signatures", {
 });
 
 export type PoaSignature = typeof poaSignatures.$inferSelect;
+export type NewPoaSignature = typeof poaSignatures.$inferInsert;
