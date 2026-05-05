@@ -8,3 +8,4 @@ export * from "./schema/documents";
 export * from "./schema/poa";
 export * from "./schema/auth";
 export * from "./schema/ops";
+export * from "./schema/job-events";
