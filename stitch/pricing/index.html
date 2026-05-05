@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+
+<html dir="rtl" lang="he"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>תשלם לי - תמחור ומחשבון פיצויים</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;700;800&amp;family=Inter:wght@400;600;700;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-primary-container": "#778db2",
+                        "on-tertiary-fixed": "#410001",
+                        "outline": "#74777f",
+                        "surface-tint": "#495f82",
+                        "error": "#ba1a1a",
+                        "surface-container-low": "#f6f3f2",
+                        "inverse-surface": "#313030",
+                        "on-surface-variant": "#44474e",
+                        "tertiary-fixed": "#ffdad5",
+                        "secondary": "#506600",
+                        "on-surface": "#1c1b1b",
+                        "error-container": "#ffdad6",
+                        "on-primary": "#ffffff",
+                        "on-secondary-container": "#546b00",
+                        "secondary-fixed-dim": "#aad600",
+                        "on-tertiary": "#ffffff",
+                        "tertiary": "#2b0001",
+                        "on-primary-fixed-variant": "#314769",
+                        "inverse-on-surface": "#f3f0ef",
+                        "background": "#fcf8f8",
+                        "primary-fixed": "#d5e3ff",
+                        "surface-container-high": "#ebe7e7",
+                        "on-primary-fixed": "#001c3b",
+                        "on-error-container": "#93000a",
+                        "outline-variant": "#c4c6cf",
+                        "primary-container": "#0b2545",
+                        "surface-container": "#f0edec",
+                        "primary": "#001026",
+                        "inverse-primary": "#b1c7f0",
+                        "surface-container-highest": "#e5e2e1",
+                        "secondary-container": "#c2f02e",
+                        "tertiary-container": "#530002",
+                        "on-error": "#ffffff",
+                        "primary-fixed-dim": "#b1c7f0",
+                        "surface-variant": "#e5e2e1",
+                        "surface-container-lowest": "#ffffff",
+                        "on-secondary": "#ffffff",
+                        "surface-dim": "#dcd9d9",
+                        "secondary-fixed": "#c5f331",
+                        "on-tertiary-fixed-variant": "#8c1713",
+                        "on-background": "#1c1b1b",
+                        "on-secondary-fixed-variant": "#3b4d00",
+                        "tertiary-fixed-dim": "#ffb4aa",
+                        "on-secondary-fixed": "#161f00",
+                        "surface-bright": "#fcf8f8",
+                        "on-tertiary-container": "#ec5d4f",
+                        "surface": "#fcf8f8"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "container-max": "1280px",
+                        "stack-sm": "12px",
+                        "margin-mobile": "16px",
+                        "base": "8px",
+                        "section-gap": "80px",
+                        "stack-md": "24px",
+                        "gutter": "24px"
+                    },
+                    "fontFamily": {
+                        "display-lg": ["Heebo"],
+                        "body-sm": ["Heebo"],
+                        "body-base": ["Heebo"],
+                        "label-bold": ["Inter"],
+                        "english-fallback": ["Inter"],
+                        "headline-md": ["Heebo"],
+                        "display-hero": ["Heebo"]
+                    },
+                    "fontSize": {
+                        "display-lg": ["60px", { "lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "800" }],
+                        "body-sm": ["16px", { "lineHeight": "1.5", "fontWeight": "400" }],
+                        "body-base": ["18px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "label-bold": ["14px", { "lineHeight": "1.2", "letterSpacing": "0.02em", "fontWeight": "600" }],
+                        "english-fallback": ["16px", { "lineHeight": "1.5", "fontWeight": "400" }],
+                        "headline-md": ["32px", { "lineHeight": "1.2", "fontWeight": "700" }],
+                        "display-hero": ["96px", { "lineHeight": "1.0", "letterSpacing": "-0.04em", "fontWeight": "800" }]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-background text-on-background font-body-base overflow-x-hidden min-h-screen flex flex-col">
+<!-- TopNavBar Component -->
+<header class="w-full sticky top-0 z-50 bg-white border-b border-slate-200 shadow-sm transition-transform scale-95 origin-top hidden md:block" style="transform: scale(1);">
+<div class="flex flex-row-reverse justify-between items-center w-full px-6 py-4 max-w-7xl mx-auto">
+<div class="flex items-center gap-4 flex-row-reverse">
+<a class="font-inter text-2xl font-black text-[#0B2545] tracking-tighter" href="/">
+                    תשלם לי
+                </a>
+</div>
+<nav class="flex items-center gap-8 flex-row-reverse">
+<a class="font-inter font-bold text-base text-slate-600 hover:text-[#0B2545] hover:bg-slate-50 transition-all duration-200 px-3 py-2 rounded-md" href="#">בדיקת זכאות</a>
+<a class="font-inter font-bold text-base text-slate-600 hover:text-[#0B2545] hover:bg-slate-50 transition-all duration-200 px-3 py-2 rounded-md" href="#">ביטולי מלחמה</a>
+<a class="font-inter font-bold text-base text-[#0B2545] border-b-2 border-lime-500 pb-1 hover:bg-slate-50 transition-all duration-200 px-3 py-2 rounded-t-md" href="#">איך זה עובד</a>
+<a class="font-inter font-bold text-base text-slate-600 hover:text-[#0B2545] hover:bg-slate-50 transition-all duration-200 px-3 py-2 rounded-md" href="#">שאלות נפוצות</a>
+</nav>
+<div class="flex items-center gap-4 flex-row-reverse">
+<div class="flex gap-2">
+<span class="material-symbols-outlined text-[#0B2545] cursor-pointer hover:bg-slate-50 p-2 rounded-full transition-all">verified_user</span>
+<span class="material-symbols-outlined text-[#0B2545] cursor-pointer hover:bg-slate-50 p-2 rounded-full transition-all">language</span>
+</div>
+<button class="font-inter font-bold text-base text-[#0B2545] px-4 py-2 hover:bg-slate-50 transition-all duration-200 rounded-md">English</button>
+<button class="bg-secondary-container text-primary-container font-label-bold text-label-bold px-6 py-3 rounded-lg uppercase tracking-wide hover:shadow-md transition-shadow">
+                    בדוק זכאות
+                </button>
+</div>
+</div>
+</header>
+<!-- Mobile Nav Header -->
+<header class="md:hidden w-full sticky top-0 z-50 bg-white border-b border-slate-200 shadow-sm px-4 py-3 flex justify-between items-center flex-row-reverse">
+<a class="font-inter text-xl font-black text-[#0B2545] tracking-tighter" href="/">תשלם לי</a>
+<button class="bg-secondary-container text-primary-container font-label-bold text-label-bold px-4 py-2 rounded-lg uppercase">
+            בדוק זכאות
+        </button>
+</header>
+<main class="flex-grow w-full max-w-container-max mx-auto px-margin-mobile md:px-gutter py-section-gap flex flex-col gap-section-gap">
+<!-- Hero Section -->
+<section class="flex flex-col items-center text-center gap-stack-md">
+<span class="bg-primary-fixed text-on-primary-fixed-variant px-4 py-1.5 rounded-full font-label-bold text-label-bold inline-block">ללא ניצחון - ללא תשלום</span>
+<h1 class="font-display-lg text-display-lg text-primary-container">תמחור שקוף, הוגן וברור</h1>
+<p class="font-body-base text-body-base text-on-surface-variant max-w-2xl">
+                אנחנו לוקחים על עצמנו את כל הסיכון. אם לא נצליח להשיג עבורך את הפיצוי מהחברת התעופה, לא תשלם אגורה.
+            </p>
+</section>
+<!-- Calculator & Fee Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter items-start">
+<!-- Calculator Card (Bento Style) -->
+<div class="lg:col-span-7 bg-surface-container-lowest rounded-xl p-8 shadow-[0_4px_20px_rgba(11,37,69,0.05)] flex flex-col gap-8">
+<div>
+<h2 class="font-headline-md text-headline-md text-primary-container mb-2">מחשבון פיצויים משוער</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant">בחר את מרחק הטיסה כדי לראות את סכום הפיצוי המשוער על פי חוק שירותי תעופה.</p>
+</div>
+<div class="flex flex-col gap-4">
+<!-- Radio Options -->
+<label class="flex items-center p-4 border border-outline-variant rounded-lg cursor-pointer hover:border-primary-container transition-colors has-[:checked]:border-2 has-[:checked]:border-primary-container has-[:checked]:bg-surface-container-low flex-row-reverse justify-between">
+<div class="flex items-center gap-3 flex-row-reverse">
+<input class="w-5 h-5 text-primary-container focus:ring-primary-container border-outline-variant" name="distance" type="radio"/>
+<span class="font-label-bold text-label-bold text-on-surface">עד 1,500 ק"מ</span>
+</div>
+<span class="text-on-surface-variant font-body-sm text-body-sm">טיסות קצרות</span>
+</label>
+<label class="flex items-center p-4 border-2 border-primary-container bg-surface-container-low rounded-lg cursor-pointer flex-row-reverse justify-between">
+<div class="flex items-center gap-3 flex-row-reverse">
+<input checked="" class="w-5 h-5 text-primary-container focus:ring-primary-container border-outline-variant" name="distance" type="radio"/>
+<span class="font-label-bold text-label-bold text-on-surface">בין 1,500 ל-4,500 ק"מ</span>
+</div>
+<span class="text-on-surface-variant font-body-sm text-body-sm">אירופה והסביבה</span>
+</label>
+<label class="flex items-center p-4 border border-outline-variant rounded-lg cursor-pointer hover:border-primary-container transition-colors has-[:checked]:border-2 has-[:checked]:border-primary-container has-[:checked]:bg-surface-container-low flex-row-reverse justify-between">
+<div class="flex items-center gap-3 flex-row-reverse">
+<input class="w-5 h-5 text-primary-container focus:ring-primary-container border-outline-variant" name="distance" type="radio"/>
+<span class="font-label-bold text-label-bold text-on-surface">מעל 4,500 ק"מ</span>
+</div>
+<span class="text-on-surface-variant font-body-sm text-body-sm">טיסות ארוכות</span>
+</label>
+</div>
+<!-- Result Display -->
+<div class="mt-4 p-6 bg-primary-container rounded-xl flex flex-col md:flex-row-reverse items-center justify-between gap-6 relative overflow-hidden">
+<!-- Decor -->
+<div class="absolute -right-10 -top-10 opacity-10">
+<span class="material-symbols-outlined text-[120px] text-white" style="font-variation-settings: 'FILL' 1;">flight_takeoff</span>
+</div>
+<div class="flex flex-col gap-1 text-center md:text-right relative z-10 w-full">
+<span class="text-inverse-primary font-label-bold text-label-bold">פיצוי משוער לכל נוסע</span>
+<div class="flex items-baseline justify-center md:justify-start gap-1 flex-row-reverse">
+<span class="text-secondary-container font-display-lg text-display-lg">2,450</span>
+<span class="text-white font-headline-md text-headline-md">₪</span>
+</div>
+</div>
+<button class="bg-secondary-container text-primary-container font-label-bold text-label-bold px-8 py-4 rounded-lg uppercase tracking-wide hover:shadow-md transition-shadow whitespace-nowrap z-10 w-full md:w-auto">
+                        התחל תביעה
+                    </button>
+</div>
+<p class="text-center font-body-sm text-body-sm text-outline">* הסכומים משוערים וכפופים לחוק שירותי תעופה (פיצוי וסיוע בשל ביטול טיסה או שינוי בתנאיה), תשע"ב-2012.</p>
+</div>
+<!-- Fee Structure Side Panel -->
+<div class="lg:col-span-5 flex flex-col gap-6">
+<!-- Commission Card -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-8 flex flex-col gap-6">
+<div class="flex items-center gap-4 flex-row-reverse">
+<div class="bg-primary-fixed p-3 rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined text-primary-container">percent</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-primary-container">עמלת הצלחה בלבד</h3>
+</div>
+<div class="flex items-end gap-2 flex-row-reverse">
+<span class="font-display-lg text-display-lg text-primary-container">22%</span>
+<span class="font-body-base text-body-base text-on-surface-variant pb-3">+ מע"מ</span>
+</div>
+<ul class="flex flex-col gap-3">
+<li class="flex items-start gap-3 flex-row-reverse text-right">
+<span class="material-symbols-outlined text-secondary-container mt-1">check_circle</span>
+<span class="font-body-base text-body-base text-on-surface">ללא עמלות פתיחת תיק</span>
+</li>
+<li class="flex items-start gap-3 flex-row-reverse text-right">
+<span class="material-symbols-outlined text-secondary-container mt-1">check_circle</span>
+<span class="font-body-base text-body-base text-on-surface">ללא הוצאות משפטיות מראש</span>
+</li>
+<li class="flex items-start gap-3 flex-row-reverse text-right">
+<span class="material-symbols-outlined text-secondary-container mt-1">check_circle</span>
+<span class="font-body-base text-body-base text-on-surface">התשלום יורד ישירות מסכום הפיצוי</span>
+</li>
+</ul>
+</div>
+<!-- Trust Card -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 flex flex-col items-center text-center gap-4">
+<div class="flex gap-4 justify-center w-full">
+<div class="flex flex-col items-center gap-2">
+<span class="material-symbols-outlined text-[40px] text-primary-container" style="font-variation-settings: 'FILL' 1;">gavel</span>
+<span class="font-label-bold text-label-bold text-on-surface">ייצוג משפטי מלא</span>
+</div>
+<div class="w-px bg-outline-variant h-12 my-auto"></div>
+<div class="flex flex-col items-center gap-2">
+<span class="material-symbols-outlined text-[40px] text-primary-container" style="font-variation-settings: 'FILL' 1;">verified</span>
+<span class="font-label-bold text-label-bold text-on-surface">לשכת עורכי הדין</span>
+</div>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">הטיפול מתבצע על ידי עורכי דין מוסמכים בישראל, המתמחים בדיני תעופה.</p>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer Component -->
+<footer class="w-full mt-auto bg-[#0B2545] border-t border-white/10 opacity-90 hover:opacity-100">
+<div class="flex flex-col md:flex-row-reverse justify-between items-start gap-8 w-full px-8 py-12 max-w-7xl mx-auto">
+<div class="flex flex-col gap-4 text-right">
+<span class="text-xl font-bold text-lime-400 font-inter">תשלם לי</span>
+<p class="font-inter text-sm leading-relaxed text-slate-300 max-w-xs">
+                    © 2024 תשלם לי - פלטפורמה משפטית לפיצוי טיסות. כל הזכויות שמורות.
+                </p>
+</div>
+<nav class="flex flex-col gap-3 text-right">
+<a class="font-inter text-sm leading-relaxed text-slate-300 hover:text-white hover:underline transition-all" href="#">תנאי שימוש</a>
+<a class="font-inter text-sm leading-relaxed text-slate-300 hover:text-white hover:underline transition-all" href="#">מדיניות פרטיות</a>
+<a class="font-inter text-sm leading-relaxed text-slate-300 hover:text-white hover:underline transition-all" href="#">הסדרי נגישות</a>
+<a class="font-inter text-sm leading-relaxed text-slate-300 hover:text-white hover:underline transition-all" href="#">WhatsApp</a>
+<a class="font-inter text-sm leading-relaxed text-slate-300 hover:text-white hover:underline transition-all" href="#">צור קשר</a>
+</nav>
+</div>
+</footer>
+</body></html>

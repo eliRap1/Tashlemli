@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+
+<html class="light" dir="rtl" lang="he"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>תשלם לי - בדיקת זכאות</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;700;800&amp;family=Inter:wght@400;600;700;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-primary-container": "#778db2",
+                    "on-tertiary-fixed": "#410001",
+                    "outline": "#74777f",
+                    "surface-tint": "#495f82",
+                    "error": "#ba1a1a",
+                    "surface-container-low": "#f6f3f2",
+                    "inverse-surface": "#313030",
+                    "on-surface-variant": "#44474e",
+                    "tertiary-fixed": "#ffdad5",
+                    "secondary": "#506600",
+                    "on-surface": "#1c1b1b",
+                    "error-container": "#ffdad6",
+                    "on-primary": "#ffffff",
+                    "on-secondary-container": "#546b00",
+                    "secondary-fixed-dim": "#aad600",
+                    "on-tertiary": "#ffffff",
+                    "tertiary": "#2b0001",
+                    "on-primary-fixed-variant": "#314769",
+                    "inverse-on-surface": "#f3f0ef",
+                    "background": "#fcf8f8",
+                    "primary-fixed": "#d5e3ff",
+                    "surface-container-high": "#ebe7e7",
+                    "on-primary-fixed": "#001c3b",
+                    "on-error-container": "#93000a",
+                    "outline-variant": "#c4c6cf",
+                    "primary-container": "#0b2545",
+                    "surface-container": "#f0edec",
+                    "primary": "#001026",
+                    "inverse-primary": "#b1c7f0",
+                    "surface-container-highest": "#e5e2e1",
+                    "secondary-container": "#c2f02e",
+                    "tertiary-container": "#530002",
+                    "on-error": "#ffffff",
+                    "primary-fixed-dim": "#b1c7f0",
+                    "surface-variant": "#e5e2e1",
+                    "surface-container-lowest": "#ffffff",
+                    "on-secondary": "#ffffff",
+                    "surface-dim": "#dcd9d9",
+                    "secondary-fixed": "#c5f331",
+                    "on-tertiary-fixed-variant": "#8c1713",
+                    "on-background": "#1c1b1b",
+                    "on-secondary-fixed-variant": "#3b4d00",
+                    "tertiary-fixed-dim": "#ffb4aa",
+                    "on-secondary-fixed": "#161f00",
+                    "surface-bright": "#fcf8f8",
+                    "on-tertiary-container": "#ec5d4f",
+                    "surface": "#fcf8f8"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "container-max": "1280px",
+                    "stack-sm": "12px",
+                    "margin-mobile": "16px",
+                    "base": "8px",
+                    "section-gap": "80px",
+                    "stack-md": "24px",
+                    "gutter": "24px"
+            },
+            "fontFamily": {
+                    "display-lg": [
+                            "Heebo"
+                    ],
+                    "body-sm": [
+                            "Heebo"
+                    ],
+                    "body-base": [
+                            "Heebo"
+                    ],
+                    "label-bold": [
+                            "Inter"
+                    ],
+                    "english-fallback": [
+                            "Inter"
+                    ],
+                    "headline-md": [
+                            "Heebo"
+                    ],
+                    "display-hero": [
+                            "Heebo"
+                    ]
+            },
+            "fontSize": {
+                    "display-lg": [
+                            "60px",
+                            {
+                                    "lineHeight": "1.1",
+                                    "letterSpacing": "-0.02em",
+                                    "fontWeight": "800"
+                            }
+                    ],
+                    "body-sm": [
+                            "16px",
+                            {
+                                    "lineHeight": "1.5",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "body-base": [
+                            "18px",
+                            {
+                                    "lineHeight": "1.6",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "label-bold": [
+                            "14px",
+                            {
+                                    "lineHeight": "1.2",
+                                    "letterSpacing": "0.02em",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "english-fallback": [
+                            "16px",
+                            {
+                                    "lineHeight": "1.5",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "headline-md": [
+                            "32px",
+                            {
+                                    "lineHeight": "1.2",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "display-hero": [
+                            "96px",
+                            {
+                                    "lineHeight": "1.0",
+                                    "letterSpacing": "-0.04em",
+                                    "fontWeight": "800"
+                            }
+                    ]
+            }
+        },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.filled {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-base antialiased selection:bg-secondary-container selection:text-on-secondary-container">
+<!-- TopNavBar -->
+<nav class="sticky bg-white dark:bg-slate-900 font-inter rtl text-right font-bold text-base docked full-width top-0 z-50 border-b border-slate-200 dark:border-slate-800 shadow-sm dark:shadow-none w-full">
+<div class="flex flex-row-reverse justify-between items-center w-full px-6 py-4 max-w-7xl mx-auto">
+<div class="flex items-center gap-4">
+<a class="text-2xl font-black text-[#0B2545] dark:text-white tracking-tighter shrink-0 hover:opacity-90 transition-opacity" href="#">תשלם לי</a>
+</div>
+<div class="hidden md:flex items-center gap-8">
+<a class="text-[#0B2545] dark:text-lime-400 border-b-2 border-lime-500 pb-1 scale-95 active:opacity-80 transition-transform" href="#">בדיקת זכאות</a>
+<a class="text-slate-600 dark:text-slate-400 hover:text-[#0B2545] hover:bg-slate-50 dark:hover:bg-slate-800 transition-all duration-200 rounded-md px-2 py-1 scale-95 active:opacity-80" href="#">ביטולי מלחמה</a>
+<a class="text-slate-600 dark:text-slate-400 hover:text-[#0B2545] hover:bg-slate-50 dark:hover:bg-slate-800 transition-all duration-200 rounded-md px-2 py-1 scale-95 active:opacity-80" href="#">איך זה עובד</a>
+<a class="text-slate-600 dark:text-slate-400 hover:text-[#0B2545] hover:bg-slate-50 dark:hover:bg-slate-800 transition-all duration-200 rounded-md px-2 py-1 scale-95 active:opacity-80" href="#">שאלות נפוצות</a>
+</div>
+<div class="flex items-center gap-4">
+<button class="hidden lg:flex items-center gap-2 text-slate-600 dark:text-slate-400 hover:text-[#0B2545] hover:bg-slate-50 dark:hover:bg-slate-800 transition-all duration-200 rounded-md px-2 py-1 scale-95 active:opacity-80">
+<span class="material-symbols-outlined" data-icon="language">language</span>
+<span>English</span>
+</button>
+<button class="flex items-center justify-center gap-2 bg-secondary-container text-primary font-bold px-4 py-2 rounded-lg hover:bg-[#aad600] transition-colors shadow-sm scale-95 active:opacity-80">
+<span class="material-symbols-outlined filled" data-icon="verified_user">verified_user</span>
+<span>בדוק זכאות</span>
+</button>
+<button class="md:hidden flex items-center justify-center p-2 text-slate-600 hover:text-[#0B2545]">
+<span class="material-symbols-outlined" data-icon="menu">menu</span>
+</button>
+</div>
+</div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="w-full max-w-container-max mx-auto px-margin-mobile md:px-gutter py-12 md:py-16 min-h-[calc(100vh-140px-200px)]">
+<!-- Progress Tracker Wrapper -->
+<div class="w-full max-w-3xl mx-auto mb-12">
+<!-- Progress Line -->
+<div class="relative flex justify-between items-center w-full">
+<div class="absolute top-1/2 left-0 w-full h-[2px] bg-surface-variant -z-10 -translate-y-1/2"></div>
+<!-- Completed Line segment (example 25%) -->
+<div class="absolute top-1/2 right-0 w-[20%] h-[2px] bg-secondary-container -z-10 -translate-y-1/2 transition-all duration-500"></div>
+<!-- Nodes -->
+<!-- Active Node -->
+<div class="flex flex-col items-center gap-2">
+<div class="w-8 h-8 rounded-full bg-primary-container text-on-primary flex items-center justify-center font-label-bold text-label-bold shadow-[0_0_0_4px_rgba(11,37,69,0.1)] transition-all">1</div>
+<span class="text-xs font-label-bold text-primary-container absolute -bottom-6 whitespace-nowrap">פרטי טיסה</span>
+</div>
+<!-- Inactive Nodes -->
+<div class="flex flex-col items-center gap-2">
+<div class="w-8 h-8 rounded-full bg-surface-container-high border-2 border-surface-variant text-on-surface-variant flex items-center justify-center font-label-bold text-label-bold transition-all">2</div>
+</div>
+<div class="flex flex-col items-center gap-2">
+<div class="w-8 h-8 rounded-full bg-surface-container-high border-2 border-surface-variant text-on-surface-variant flex items-center justify-center font-label-bold text-label-bold transition-all">3</div>
+</div>
+<div class="flex flex-col items-center gap-2">
+<div class="w-8 h-8 rounded-full bg-surface-container-high border-2 border-surface-variant text-on-surface-variant flex items-center justify-center font-label-bold text-label-bold transition-all">4</div>
+</div>
+<div class="flex flex-col items-center gap-2">
+<div class="w-8 h-8 rounded-full bg-surface-container-high border-2 border-surface-variant text-on-surface-variant flex items-center justify-center font-label-bold text-label-bold transition-all">5</div>
+</div>
+<div class="flex flex-col items-center gap-2">
+<div class="w-8 h-8 rounded-full bg-surface-container-high border-2 border-surface-variant text-on-surface-variant flex items-center justify-center font-label-bold text-label-bold transition-all">
+<span class="material-symbols-outlined" style="font-size: 16px;">gavel</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Intake Form Container (Step 1 Example) -->
+<div class="w-full max-w-2xl mx-auto bg-surface-container-lowest rounded-xl shadow-[0_4px_20px_rgba(11,37,69,0.05)] border border-surface-variant p-6 md:p-10 relative overflow-hidden">
+<!-- Subtle Brand Background Element -->
+<div class="absolute -top-24 -right-24 w-64 h-64 bg-secondary-container/5 rounded-full blur-3xl pointer-events-none"></div>
+<div class="mb-8">
+<h1 class="font-headline-md text-headline-md text-primary mb-2">איזו טיסה השתבשה?</h1>
+<p class="font-body-base text-body-base text-on-surface-variant">הזן את מספר הטיסה והתאריך המקורי כדי שנוכל לאתר אותה במערכת שלנו.</p>
+</div>
+<form class="flex flex-col gap-6">
+<!-- Bento-style Input Layout -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<!-- Flight Number Input -->
+<div class="flex flex-col gap-2">
+<label class="font-label-bold text-label-bold text-primary" for="flight-number">מספר טיסה <span class="text-outline-variant font-normal">(לדוגמא: LY315)</span></label>
+<div class="relative">
+<span class="absolute inset-y-0 right-3 flex items-center text-outline pointer-events-none material-symbols-outlined" data-icon="flight">flight</span>
+<input class="w-full pl-4 pr-10 py-3 rounded-lg border border-outline-variant bg-surface-bright text-on-surface focus:border-primary-container focus:ring-2 focus:ring-primary-container/20 transition-all uppercase placeholder:normal-case font-english-fallback" dir="ltr" id="flight-number" name="flight-number" placeholder="הזן מספר טיסה" type="text"/>
+</div>
+</div>
+<!-- Date Input -->
+<div class="flex flex-col gap-2">
+<label class="font-label-bold text-label-bold text-primary" for="flight-date">תאריך טיסה מקורי</label>
+<div class="relative">
+<span class="absolute inset-y-0 right-3 flex items-center text-outline pointer-events-none material-symbols-outlined" data-icon="calendar_today">calendar_today</span>
+<input class="w-full pl-4 pr-10 py-3 rounded-lg border border-outline-variant bg-surface-bright text-on-surface focus:border-primary-container focus:ring-2 focus:ring-primary-container/20 transition-all font-english-fallback" id="flight-date" name="flight-date" type="date"/>
+</div>
+</div>
+</div>
+<!-- Info Box -->
+<div class="mt-4 p-4 rounded-lg bg-surface-container-low border border-surface-dim flex gap-4 items-start">
+<span class="material-symbols-outlined text-surface-tint mt-0.5" data-icon="info">info</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+                        לא זוכר את מספר הטיסה המדויק? בדוק את כרטיס העלייה למטוס או את אישור ההזמנה שקיבלת במייל.
+                    </p>
+</div>
+<!-- Actions -->
+<div class="mt-8 flex justify-end gap-4">
+<!-- Secondary Button hidden on step 1, shown here for structure reference -->
+<!-- <button type="button" class="px-6 py-3 rounded-lg border border-primary-container text-primary-container font-label-bold text-label-bold hover:bg-surface-container-highest transition-colors">חזור</button> -->
+<button class="w-full md:w-auto px-8 py-3 rounded-lg bg-secondary-container text-primary font-bold text-lg hover:bg-secondary-fixed shadow-sm hover:shadow-md transition-all flex items-center justify-center gap-2" type="submit">
+                        המשך
+                        <span class="material-symbols-outlined rtl:rotate-180" data-icon="arrow_forward">arrow_forward</span>
+</button>
+</div>
+</form>
+</div>
+</main>
+<!-- Footer -->
+<footer class="bg-[#0B2545] dark:bg-slate-950 font-inter rtl text-right text-sm leading-relaxed full-width bottom border-t border-white/10 w-full mt-auto">
+<div class="flex flex-col md:flex-row-reverse justify-between items-start gap-8 w-full px-8 py-12 max-w-7xl mx-auto">
+<div class="flex flex-col gap-4 w-full md:w-1/3">
+<span class="text-xl font-bold text-lime-400">תשלם לי</span>
+<p class="text-white dark:text-slate-300">
+                    © 2024 תשלם לי - פלטפורמה משפטית לפיצוי טיסות. כל הזכויות שמורות.
+                </p>
+</div>
+<div class="flex flex-col md:flex-row gap-8 md:gap-16 w-full md:w-auto">
+<div class="flex flex-col gap-3">
+<h4 class="text-slate-400 font-bold mb-1 uppercase tracking-wider text-xs">מידע</h4>
+<a class="text-slate-300 hover:text-white hover:underline transition-all opacity-90 hover:opacity-100" href="#">תנאי שימוש</a>
+<a class="text-slate-300 hover:text-white hover:underline transition-all opacity-90 hover:opacity-100" href="#">מדיניות פרטיות</a>
+<a class="text-slate-300 hover:text-white hover:underline transition-all opacity-90 hover:opacity-100" href="#">הסדרי נגישות</a>
+</div>
+<div class="flex flex-col gap-3">
+<h4 class="text-slate-400 font-bold mb-1 uppercase tracking-wider text-xs">תמיכה</h4>
+<a class="text-slate-300 hover:text-white hover:underline transition-all opacity-90 hover:opacity-100 flex items-center gap-2" href="#">
+<span class="material-symbols-outlined" data-icon="chat" style="font-size: 18px;">chat</span>
+                        WhatsApp
+                    </a>
+<a class="text-slate-300 hover:text-white hover:underline transition-all opacity-90 hover:opacity-100 flex items-center gap-2" href="#">
+<span class="material-symbols-outlined" data-icon="mail" style="font-size: 18px;">mail</span>
+                        צור קשר
+                    </a>
+</div>
+</div>
+</div>
+</footer>
+</body></html>

@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+
+<html dir="rtl" lang="he"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>איך זה עובד? - תשלם לי</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "secondary-fixed": "#c5f331",
+                      "primary-container": "#0b2545",
+                      "surface-tint": "#495f82",
+                      "on-tertiary-container": "#ec5d4f",
+                      "on-secondary": "#ffffff",
+                      "secondary-container": "#c2f02e",
+                      "on-surface-variant": "#44474e",
+                      "on-secondary-fixed-variant": "#3b4d00",
+                      "on-tertiary-fixed": "#410001",
+                      "tertiary-container": "#530002",
+                      "tertiary-fixed-dim": "#ffb4aa",
+                      "on-surface": "#1c1b1b",
+                      "secondary-fixed-dim": "#aad600",
+                      "surface-container": "#f0edec",
+                      "surface-bright": "#fcf8f8",
+                      "inverse-surface": "#313030",
+                      "on-tertiary": "#ffffff",
+                      "error": "#ba1a1a",
+                      "primary": "#001026",
+                      "secondary": "#506600",
+                      "background": "#fcf8f8",
+                      "surface": "#fcf8f8",
+                      "on-error-container": "#93000a",
+                      "on-primary-fixed-variant": "#314769",
+                      "primary-fixed-dim": "#b1c7f0",
+                      "error-container": "#ffdad6",
+                      "inverse-on-surface": "#f3f0ef",
+                      "tertiary": "#2b0001",
+                      "on-primary-fixed": "#001c3b",
+                      "inverse-primary": "#b1c7f0",
+                      "surface-container-low": "#f6f3f2",
+                      "outline": "#74777f",
+                      "surface-variant": "#e5e2e1",
+                      "on-secondary-fixed": "#161f00",
+                      "on-primary": "#ffffff",
+                      "tertiary-fixed": "#ffdad5",
+                      "primary-fixed": "#d5e3ff",
+                      "on-tertiary-fixed-variant": "#8c1713",
+                      "outline-variant": "#c4c6cf",
+                      "on-background": "#1c1b1b",
+                      "on-primary-container": "#778db2",
+                      "surface-container-highest": "#e5e2e1",
+                      "on-secondary-container": "#546b00",
+                      "surface-dim": "#dcd9d9",
+                      "surface-container-lowest": "#ffffff",
+                      "on-error": "#ffffff",
+                      "surface-container-high": "#ebe7e7"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "stack-sm": "12px",
+                      "stack-md": "24px",
+                      "margin-mobile": "16px",
+                      "section-gap": "80px",
+                      "base": "8px",
+                      "gutter": "24px",
+                      "container-max": "1280px"
+              },
+              "fontFamily": {
+                      "display-lg": [
+                              "Heebo"
+                      ],
+                      "display-hero": [
+                              "Heebo"
+                      ],
+                      "body-base": [
+                              "Heebo"
+                      ],
+                      "label-bold": [
+                              "inter"
+                      ],
+                      "english-fallback": [
+                              "inter"
+                      ],
+                      "headline-md": [
+                              "Heebo"
+                      ],
+                      "body-sm": [
+                              "Heebo"
+                      ]
+              },
+              "fontSize": {
+                      "display-lg": [
+                              "60px",
+                              {
+                                      "lineHeight": "1.1",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "800"
+                              }
+                      ],
+                      "display-hero": [
+                              "96px",
+                              {
+                                      "lineHeight": "1.0",
+                                      "letterSpacing": "-0.04em",
+                                      "fontWeight": "800"
+                              }
+                      ],
+                      "body-base": [
+                              "18px",
+                              {
+                                      "lineHeight": "1.6",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "label-bold": [
+                              "14px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "letterSpacing": "0.02em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "english-fallback": [
+                              "16px",
+                              {
+                                      "lineHeight": "1.5",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-md": [
+                              "32px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "body-sm": [
+                              "16px",
+                              {
+                                      "lineHeight": "1.5",
+                                      "fontWeight": "400"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+</head>
+<body class="bg-background text-on-background font-body-base antialiased rtl">
+<!-- TopNavBar Component -->
+<nav class="bg-white dark:bg-slate-900 font-['Inter'] rtl text-right font-medium docked full-width top-0 border-b border-slate-100 dark:border-slate-800 shadow-[0_4px_20px_rgba(11,37,69,0.05)]">
+<div class="flex flex-row-reverse justify-between items-center w-full px-6 py-4 max-w-7xl mx-auto">
+<div class="text-2xl font-black text-[#0B2545] dark:text-white">
+                תשלם לי
+            </div>
+<div class="hidden md:flex gap-8 items-center flex-row-reverse">
+<a class="text-slate-600 dark:text-slate-400 hover:text-[#0B2545] dark:hover:text-white hover:opacity-80 transition-opacity" href="#">בדיקת זכאות</a>
+<a class="text-slate-600 dark:text-slate-400 hover:text-[#0B2545] dark:hover:text-white hover:opacity-80 transition-opacity" href="#">ביטולי מלחמה</a>
+<a class="text-[#0B2545] dark:text-lime-400 border-b-2 border-lime-400 pb-1 font-bold" href="#">התהליך</a>
+<a class="text-slate-600 dark:text-slate-400 hover:text-[#0B2545] dark:hover:text-white hover:opacity-80 transition-opacity" href="#">שאלות ותשובות</a>
+</div>
+<button class="bg-secondary-fixed text-primary-container px-6 py-2 rounded-lg font-label-bold text-label-bold active:scale-95 transition-transform duration-200">
+                הגש תביעה
+            </button>
+</div>
+</nav>
+<!-- Hero Section -->
+<header class="pt-section-gap pb-16 px-gutter max-w-container-max mx-auto text-center">
+<h1 class="font-display-lg text-display-lg text-primary-container mb-stack-sm">
+            איך זה עובד?
+        </h1>
+<p class="font-headline-md text-headline-md text-surface-tint max-w-3xl mx-auto">
+            3 שלבים פשוטים בדרך לפיצוי. אנחנו עושים את העבודה הקשה, אתם מקבלים את הכסף.
+        </p>
+</header>
+<!-- Steps Section (Bento Grid) -->
+<section class="py-16 px-gutter max-w-container-max mx-auto">
+<div class="grid grid-cols-1 md:grid-cols-12 gap-stack-md">
+<!-- Step 1 -->
+<div class="md:col-span-12 lg:col-span-8 bg-surface-container-lowest rounded-xl p-8 shadow-[0_4px_20px_rgba(11,37,69,0.05)] border border-surface-variant flex flex-col md:flex-row gap-8 items-center">
+<div class="flex-1 space-y-4">
+<div class="w-12 h-12 bg-secondary-container rounded-full flex items-center justify-center text-primary-container font-headline-md text-headline-md mb-4">
+                        1
+                    </div>
+<h2 class="font-headline-md text-headline-md text-primary-container">ספרו לנו על הטיסה</h2>
+<p class="font-body-base text-body-base text-surface-tint">
+                        מלאו טופס קצר עם פרטי הטיסה שלכם. זה לוקח בדיוק 2 דקות. אנחנו נבדוק את הנתונים מול מאגרי התעופה העולמיים כדי לאמת את הזכאות שלכם לפיצוי.
+                    </p>
+</div>
+<div class="flex-1 w-full bg-background rounded-lg p-6 border border-outline-variant shadow-inner">
+<!-- Form Preview -->
+<div class="space-y-4 opacity-80 pointer-events-none">
+<div>
+<label class="font-label-bold text-label-bold text-primary-container block mb-1">מספר טיסה</label>
+<input class="w-full border-outline-variant rounded-DEFAULT py-2 px-3 bg-surface-container-lowest text-on-surface" disabled="" type="text" value="LY315"/>
+</div>
+<div>
+<label class="font-label-bold text-label-bold text-primary-container block mb-1">תאריך</label>
+<input class="w-full border-outline-variant rounded-DEFAULT py-2 px-3 bg-surface-container-lowest text-on-surface" disabled="" type="text" value="12/10/2023"/>
+</div>
+<button class="w-full bg-surface-tint text-on-primary py-2 rounded-DEFAULT font-label-bold text-label-bold mt-2">בדוק זכאות</button>
+</div>
+</div>
+</div>
+<!-- Step 2 -->
+<div class="md:col-span-12 lg:col-span-4 bg-primary-container rounded-xl p-8 shadow-[0_4px_20px_rgba(11,37,69,0.05)] flex flex-col justify-between text-on-primary relative overflow-hidden">
+<div class="absolute -right-10 -top-10 opacity-10">
+<span class="material-symbols-outlined" style="font-size: 200px;">balance</span>
+</div>
+<div class="relative z-10 space-y-4">
+<div class="w-12 h-12 bg-surface-tint rounded-full flex items-center justify-center text-on-primary font-headline-md text-headline-md mb-4">
+                        2
+                    </div>
+<h2 class="font-headline-md text-headline-md text-secondary-fixed">אנחנו נלחמים בשבילכם</h2>
+<p class="font-body-base text-body-base text-primary-fixed-dim">
+                        הצוות המשפטי שלנו מגיש את התביעה מול חברת התעופה. אנחנו מנהלים את כל התכתובות והביורוקרטיה. במקרה הצורך, אנחנו הולכים גם לבית משפט - על חשבוננו.
+                    </p>
+</div>
+</div>
+<!-- Step 3 -->
+<div class="md:col-span-12 bg-surface-container-lowest rounded-xl p-8 shadow-[0_4px_20px_rgba(11,37,69,0.05)] border border-surface-variant flex flex-col md:flex-row gap-8 items-center justify-between">
+<div class="flex-1 space-y-4">
+<div class="w-12 h-12 bg-secondary-container rounded-full flex items-center justify-center text-primary-container font-headline-md text-headline-md mb-4">
+                        3
+                    </div>
+<h2 class="font-headline-md text-headline-md text-primary-container">מקבלים את הכסף</h2>
+<p class="font-body-base text-body-base text-surface-tint">
+                        ברגע שחברת התעופה משלמת, אנחנו מעבירים לכם את הכסף ישירות לחשבון הבנק, בקיזוז העמלה ההוגנת שלנו. אין זכייה - אין תשלום.
+                    </p>
+</div>
+<div class="flex-1 w-full max-w-sm flex justify-center">
+<!-- Notification Simulation -->
+<div class="bg-white border-2 border-secondary-fixed rounded-xl p-4 shadow-lg flex items-center gap-4 w-full animate-pulse-slow">
+<div class="bg-secondary-fixed w-12 h-12 rounded-full flex items-center justify-center text-primary-container">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">account_balance</span>
+</div>
+<div>
+<div class="font-label-bold text-label-bold text-primary-container">העברה התקבלה</div>
+<div class="font-headline-md text-headline-md text-primary-container font-bold">₪2,450</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Compare Section -->
+<section class="py-16 px-gutter bg-surface-container-low border-y border-surface-variant">
+<div class="max-w-container-max mx-auto">
+<div class="text-center mb-stack-md">
+<h2 class="font-headline-md text-headline-md text-primary-container mb-4">למה לבחור בנו?</h2>
+<p class="font-body-base text-body-base text-surface-tint">השוו אותנו למתחרים ותראו את ההבדל</p>
+</div>
+<div class="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+<!-- Competitors -->
+<div class="bg-surface-container-highest rounded-xl p-6 border border-outline-variant opacity-80">
+<h3 class="font-headline-md text-headline-md text-on-surface-variant mb-6 text-center">המתחרים</h3>
+<ul class="space-y-4">
+<li class="flex items-center gap-3 font-body-base text-body-base text-on-surface-variant">
+<span class="material-symbols-outlined text-error">close</span>
+                            עמלות גבוהות מ-30%
+                        </li>
+<li class="flex items-center gap-3 font-body-base text-body-base text-on-surface-variant">
+<span class="material-symbols-outlined text-error">close</span>
+                            שירות לקוחות איטי ולרוב באנגלית
+                        </li>
+<li class="flex items-center gap-3 font-body-base text-body-base text-on-surface-variant">
+<span class="material-symbols-outlined text-error">close</span>
+                            לא מטפלים בטיסות מישראל בעדיפות
+                        </li>
+</ul>
+</div>
+<!-- Tashlemli -->
+<div class="bg-white rounded-xl p-6 border-2 border-secondary-fixed shadow-lg relative transform md:-translate-y-2">
+<div class="absolute -top-4 right-1/2 translate-x-1/2 bg-secondary-fixed text-primary-container px-4 py-1 rounded-full font-label-bold text-label-bold whitespace-nowrap">
+                        הבחירה המשתלמת
+                    </div>
+<h3 class="font-headline-md text-headline-md text-primary-container mb-6 text-center mt-2">תשלם לי</h3>
+<ul class="space-y-4">
+<li class="flex items-center gap-3 font-label-bold text-label-bold text-primary-container">
+<span class="material-symbols-outlined text-secondary-fixed" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+                            עמלה הוגנת של 22% בלבד
+                        </li>
+<li class="flex items-center gap-3 font-label-bold text-label-bold text-primary-container">
+<span class="material-symbols-outlined text-secondary-fixed" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+                            שירות ותמיכה מלאה בעברית
+                        </li>
+<li class="flex items-center gap-3 font-label-bold text-label-bold text-primary-container">
+<span class="material-symbols-outlined text-secondary-fixed" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+                            התמחות ייעודית בחוק שירותי תעופה הישראלי
+                        </li>
+</ul>
+</div>
+</div>
+</div>
+</section>
+<!-- Call to Action -->
+<section class="py-24 px-gutter text-center max-w-container-max mx-auto">
+<h2 class="font-headline-md text-headline-md text-primary-container mb-stack-sm">מוכנים להתחיל?</h2>
+<p class="font-body-base text-body-base text-surface-tint mb-8 max-w-2xl mx-auto">בדקו את זכאותכם עכשיו בחינם וללא התחייבות.</p>
+<button class="bg-secondary-fixed text-primary-container px-8 py-4 rounded-xl font-label-bold text-label-bold text-lg shadow-lg hover:shadow-xl active:scale-95 transition-all duration-200">
+            בדוק זכאות עכשיו בחינם
+        </button>
+</section>
+<!-- Footer Component -->
+<footer class="bg-[#FAFAF7] dark:bg-slate-950 font-['Inter'] rtl text-right text-sm docked full-width border-t border-slate-200 dark:border-slate-800 flat no shadows">
+<div class="flex flex-col md:flex-row-reverse justify-between items-center w-full px-8 py-12 max-w-7xl mx-auto gap-6 transition-colors duration-150">
+<div class="text-xl font-bold text-[#0B2545] dark:text-lime-400">
+                תשלם לי
+            </div>
+<div class="flex flex-wrap justify-center gap-6">
+<a class="text-slate-500 dark:text-slate-400 hover:underline hover:text-lime-600 dark:hover:text-lime-300 transition-colors duration-150" href="#">תנאי שימוש</a>
+<a class="text-slate-500 dark:text-slate-400 hover:underline hover:text-lime-600 dark:hover:text-lime-300 transition-colors duration-150" href="#">מדיניות פרטיות</a>
+<a class="text-slate-500 dark:text-slate-400 hover:underline hover:text-lime-600 dark:hover:text-lime-300 transition-colors duration-150" href="#">צרו קשר בוואטסאפ</a>
+<a class="text-slate-500 dark:text-slate-400 hover:underline hover:text-lime-600 dark:hover:text-lime-300 transition-colors duration-150" href="#">פייסבוק</a>
+<a class="text-slate-500 dark:text-slate-400 hover:underline hover:text-lime-600 dark:hover:text-lime-300 transition-colors duration-150" href="#">אינסטגרם</a>
+</div>
+<div class="text-[#0B2545] dark:text-slate-200 font-semibold text-center">
+                © 2024 תשלם לי - כל הזכויות שמורות. שירות פיצוי טיסות מהיר ומקצועי.
+            </div>
+</div>
+</footer>
+</body></html>

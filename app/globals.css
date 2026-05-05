@@ -1,0 +1,181 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --terminal: #0a0e14;
+  --cancellation: #ff3b30;
+  --reversal: #c6f432;
+  --fluorescent: #f5f5f0;
+  --concrete: #2a2d34;
+  --amber: #ffb547;
+  --navy: #0b2545;
+  --grain-opacity: 0.07;
+}
+
+* {
+  box-sizing: border-box;
+  -webkit-font-smoothing: antialiased;
+}
+
+html,
+body {
+  background: var(--terminal);
+  color: var(--fluorescent);
+  font-family: var(--font-heebo), var(--font-inter), sans-serif;
+  font-feature-settings: "tnum" 1, "lnum" 1, "ss01" 1;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+html[dir="rtl"] {
+  direction: rtl;
+}
+
+::selection {
+  background: var(--reversal);
+  color: var(--terminal);
+}
+
+/* Anamorphic flare overlay used on hero */
+.anamorphic-flare {
+  background: radial-gradient(
+    ellipse 90% 30% at 50% 50%,
+    rgba(255, 181, 71, 0.08) 0%,
+    rgba(255, 181, 71, 0.02) 30%,
+    transparent 60%
+  );
+  mix-blend-mode: screen;
+  pointer-events: none;
+}
+
+/* ENR silver-retention grade — crushed blacks, blown chrome */
+.enr-grade {
+  filter: contrast(1.18) saturate(0.62) brightness(0.94);
+}
+
+/* Tenet dual-direction grade — cool teal background, warm pocket */
+.tenet-grade {
+  filter: contrast(1.08) saturate(0.74) hue-rotate(-6deg);
+}
+
+/* Film grain overlay */
+.grain::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.92' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.55 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  background-size: 220px 220px;
+  opacity: var(--grain-opacity);
+  mix-blend-mode: overlay;
+  pointer-events: none;
+  z-index: 60;
+  animation: grainShift 0.42s steps(6) infinite;
+}
+
+@keyframes grainShift {
+  0% { transform: translate(0, 0); }
+  16% { transform: translate(-3%, 2%); }
+  33% { transform: translate(2%, -2%); }
+  50% { transform: translate(-2%, 3%); }
+  66% { transform: translate(3%, 1%); }
+  83% { transform: translate(-1%, -3%); }
+  100% { transform: translate(0, 0); }
+}
+
+/* Split-flap mechanical board */
+.split-flap {
+  perspective: 240px;
+  display: inline-block;
+}
+
+.split-flap-char {
+  display: inline-block;
+  width: 0.62em;
+  height: 1.05em;
+  background: linear-gradient(180deg, #11161e 0%, #060810 49%, #060810 51%, #0d1218 100%);
+  border-radius: 2px;
+  box-shadow:
+    inset 0 0.5em 0 -0.49em rgba(0, 0, 0, 0.75),
+    inset 0 -0.5em 0 -0.49em rgba(0, 0, 0, 0.7),
+    0 0 0 1px rgba(255, 255, 255, 0.04),
+    0 0 12px rgba(0, 0, 0, 0.6);
+  color: var(--fluorescent);
+  text-align: center;
+  position: relative;
+  font-family: var(--font-jetbrains), monospace;
+  font-weight: 700;
+  line-height: 1.05em;
+  margin: 0 0.04em;
+}
+
+.split-flap-char::after {
+  content: "";
+  position: absolute;
+  inset: 49% 4% 49% 4%;
+  background: rgba(0, 0, 0, 0.85);
+  height: 1px;
+  pointer-events: none;
+}
+
+/* Boarding-pass tear edge */
+.tear-edge {
+  --tear: 6px;
+  -webkit-mask-image:
+    radial-gradient(circle at calc(var(--tear) / 2) 50%, transparent var(--tear), black calc(var(--tear) + 0.5px)),
+    radial-gradient(circle at calc(100% - var(--tear) / 2) 50%, transparent var(--tear), black calc(var(--tear) + 0.5px));
+  -webkit-mask-composite: source-in;
+}
+
+/* Magnetic CTA hover */
+.magnetic-cta {
+  position: relative;
+  isolation: isolate;
+  transition: transform 320ms cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
+}
+
+.magnetic-cta::before {
+  content: "";
+  position: absolute;
+  inset: -8px;
+  border-radius: 999px;
+  background: radial-gradient(closest-side, rgba(198, 244, 50, 0.35), transparent 70%);
+  opacity: 0;
+  transition: opacity 420ms cubic-bezier(0.22, 1, 0.36, 1);
+  z-index: -1;
+}
+
+.magnetic-cta:hover::before { opacity: 1; }
+
+/* Departures-board ambient hum */
+.terminal-hum {
+  background:
+    radial-gradient(ellipse 80% 22% at 50% 8%, rgba(245, 245, 240, 0.08), transparent 60%),
+    radial-gradient(ellipse 60% 30% at 50% 100%, rgba(11, 37, 69, 0.32), transparent 70%);
+}
+
+/* Court-verdict draw-on checkmark */
+@keyframes drawCheck {
+  0% { stroke-dashoffset: 60; }
+  100% { stroke-dashoffset: 0; }
+}
+
+.draw-check path {
+  stroke-dasharray: 60;
+  stroke-dashoffset: 60;
+  animation: drawCheck 0.9s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+}
+
+/* Hide scrollbars where needed */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* Reduced motion respect */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}
