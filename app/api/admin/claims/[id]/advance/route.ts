@@ -23,7 +23,7 @@ const STAGE_LABELS: Record<string, { he: string; en: string; index: number }> = 
   "claim.closed":       { he: "תיק נסגר",          en: "Claim closed",           index: 15 },
 };
 
-const Body = z.object({ code: z.string(), metadata: z.record(z.any()).optional() });
+const Body = z.object({ code: z.string(), metadata: z.record(z.string(), z.any()).optional() });
 
 export const runtime = "nodejs";
 

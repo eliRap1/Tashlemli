@@ -32,7 +32,7 @@ export async function GET(
         controller.enqueue(frame(ev.id, ev.payload));
       }
 
-      const onNotify = async (_channel: string, rowId: string) => {
+      const onNotify = async (rowId: string) => {
         const [row] = await db.select().from(jobEvents).where(eq(jobEvents.id, rowId)).limit(1);
         if (row) controller.enqueue(frame(row.id, row.payload));
       };

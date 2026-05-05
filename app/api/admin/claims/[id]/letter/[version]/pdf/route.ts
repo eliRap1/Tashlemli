@@ -21,6 +21,6 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
   const letter = (drafted?.metadata as any)?.letter;
   if (!letter) return NextResponse.json({ error: "no_letter" }, { status: 404 });
 
-  const stream = await renderToStream(React.createElement(DemandLetterPDF, { letter }));
+  const stream = await renderToStream(React.createElement(DemandLetterPDF, { letter }) as any);
   return new Response(stream as any, { headers: { "content-type": "application/pdf", "cache-control": "no-store" } });
 }

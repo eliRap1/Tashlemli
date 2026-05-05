@@ -21,7 +21,7 @@ export async function extractFromImage(imageBytes: Buffer, contentType: string):
         role: "user",
         content: [
           { type: "text", text: "Extract the flight document fields." },
-          { type: "image", image: imageBytes, mimeType: contentType as any },
+          { type: "image", image: imageBytes, mediaType: contentType },
         ],
       },
     ],
