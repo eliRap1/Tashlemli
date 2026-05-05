@@ -16,6 +16,8 @@
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^3.0.74",
+    "@react-email/components": "^1.0.12",
+    "@react-email/render": "^2.0.8",
     "@upstash/redis": "^1.38.0",
     "@vercel/blob": "^2.3.3",
     "ai": "^6.0.175",
@@ -27,6 +29,7 @@
     "postgres": "^3.4.9",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-email": "^6.0.8",
     "resend": "^6.12.2",
     "sharp": "^0.34.5",
     "zod": "^4.4.3"
