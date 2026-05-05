@@ -53,7 +53,7 @@ export function Nav() {
             כניסה
           </button>
           <a
-            href="#check"
+            href="/check"
             className="rounded-full bg-reversal text-terminal px-5 py-2 font-heebo font-bold text-sm hover:brightness-110 transition"
           >
             בדיקה חינם

@@ -54,7 +54,7 @@ export function FinalCTA() {
           transition={{ duration: 1.0, delay: 0.8 }}
           className="mt-12 animate-lime-pulse rounded-full"
         >
-          <BoardingPassCTA href="#check" size="lg">
+          <BoardingPassCTA href="/check" size="lg">
             בדוק את הטיסה שלך עכשיו
           </BoardingPassCTA>
         </motion.div>

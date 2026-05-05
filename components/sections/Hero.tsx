@@ -63,7 +63,7 @@ export function Hero() {
           transition={{ duration: 0.9, delay: 3.8, ease: [0.22, 1, 0.36, 1] }}
           className="mt-9"
         >
-          <BoardingPassCTA href="#calculator" size="lg">
+          <BoardingPassCTA href="/check" size="lg">
             בדיקת זכאות מיידית
           </BoardingPassCTA>
         </motion.div>

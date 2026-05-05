@@ -64,7 +64,7 @@ export function Calculator() {
               </div>
 
               <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
-                <BoardingPassCTA href="#check" size="lg">
+                <BoardingPassCTA href="/check" size="lg">
                   בדיקה לפי הטיסה שלך
                 </BoardingPassCTA>
                 <span className="text-xs font-mono uppercase tracking-[0.3em] text-fluorescent/40">
