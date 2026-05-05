@@ -1,4 +1,4 @@
--- db/migrations/0001_claim_events_notify.sql
+-- db/migrations/0002_claim_events_notify.sql
 CREATE OR REPLACE FUNCTION notify_claim_event() RETURNS TRIGGER AS $$
 BEGIN
   PERFORM pg_notify('claim_events', NEW.claim_id::text);
