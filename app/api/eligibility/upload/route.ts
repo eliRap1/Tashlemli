@@ -50,7 +50,10 @@ export async function POST(req: Request) {
   if (!job) return NextResponse.json({ error: "db_fail" }, { status: 500 });
 
   await publishJobEvent(job.id, { kind: "queued" });
-  void runJob(job.id, stripped, "image/jpeg");
+  // Run the pipeline inline; Vercel Functions cancel any work the response
+  // doesn't await (the previous fire-and-forget pattern silently dropped
+  // OCR + lookup + compute on Vercel).
+  await runJob(job.id, stripped, "image/jpeg");
 
   return NextResponse.json({ jobId: job.id, sseUrl: `/api/eligibility/${job.id}/sse` });
 }

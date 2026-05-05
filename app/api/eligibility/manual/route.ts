@@ -13,6 +13,7 @@ const Body = z.object({
 });
 
 export const runtime = "nodejs";
+export const maxDuration = 30;
 
 export async function POST(req: Request) {
   const parsed = Body.safeParse(await req.json());
@@ -36,27 +37,38 @@ export async function POST(req: Request) {
   }).returning();
   if (!job) return NextResponse.json({ error: "db_fail" }, { status: 500 });
 
-  void (async () => {
-    const { lookupFlight, computeFacts } = await import("@/services/eligibility/lookup");
-    const { compute } = await import("@/services/eligibility/engine");
-    const { publishJobEvent } = await import("@/services/eligibility/publish");
-    try {
-      const flight = await lookupFlight(parsed.data.flight_number, parsed.data.departure_date);
-      const facts = computeFacts(flight);
-      const result = compute({
-        distance_km: facts.distance_km,
-        delay_minutes: parsed.data.delay_minutes ?? facts.delay_minutes,
-        cancellation: parsed.data.cancellation ?? facts.cancellation,
-        jurisdiction: flight.airlineIata === "LY" ? "BOTH" : "EU261",
-        reason_category: "unknown",
-        flight_date: parsed.data.departure_date,
-      });
-      await db.update(eligibilityJobs).set({ status: "ready", flightId: flight.id, result }).where(eq(eligibilityJobs.id, job.id));
-      await publishJobEvent(job.id, { kind: "ready", result, passenger: "passenger", flight: parsed.data.flight_number, route: "TLV → ?" });
-    } catch (e: any) {
-      await publishJobEvent(job.id, { kind: "failed", code: e.code ?? "MANUAL_FAIL", message: e.message });
-    }
-  })();
+  // Run the pipeline inline so Vercel Functions does not kill the work after the
+  // response. Steps are fast (cached flight lookup + pure compute) so this is well
+  // within the function timeout.
+  const { lookupFlight, computeFacts } = await import("@/services/eligibility/lookup");
+  const { compute } = await import("@/services/eligibility/engine");
+  const { publishJobEvent } = await import("@/services/eligibility/publish");
+  try {
+    await publishJobEvent(job.id, { kind: "looking_up" });
+    const flight = await lookupFlight(parsed.data.flight_number, parsed.data.departure_date);
+    const facts = computeFacts(flight);
+    await publishJobEvent(job.id, { kind: "looked_up", flight_id: flight.id });
+    await publishJobEvent(job.id, { kind: "computing" });
+    const result = compute({
+      distance_km: facts.distance_km,
+      delay_minutes: parsed.data.delay_minutes ?? facts.delay_minutes,
+      cancellation: parsed.data.cancellation ?? facts.cancellation,
+      jurisdiction: flight.airlineIata === "LY" ? "BOTH" : "EU261",
+      reason_category: "unknown",
+      flight_date: parsed.data.departure_date,
+    });
+    await db.update(eligibilityJobs).set({ status: "ready", flightId: flight.id, result }).where(eq(eligibilityJobs.id, job.id));
+    await publishJobEvent(job.id, {
+      kind: "ready",
+      result,
+      passenger: "passenger",
+      flight: parsed.data.flight_number,
+      route: `${flight.departureIata ?? "TLV"} → ${flight.arrivalIata ?? "?"}`,
+    });
+  } catch (e: any) {
+    await db.update(eligibilityJobs).set({ status: "failed", failureCode: e.code ?? "MANUAL_FAIL" }).where(eq(eligibilityJobs.id, job.id));
+    await publishJobEvent(job.id, { kind: "failed", code: e.code ?? "MANUAL_FAIL", message: e.message ?? "fail" });
+  }
 
   return NextResponse.json({ jobId: job.id, sseUrl: `/api/eligibility/${job.id}/sse` });
 }
