@@ -27,6 +27,7 @@
     "clsx": "^2.1.1",
     "drizzle-orm": "^0.45.2",
     "jose": "^6.2.3",
+    "mailparser": "^3.9.8",
     "motion": "^12.0.0",
     "next": "^16.0.0",
     "postgres": "^3.4.9",
@@ -39,6 +40,7 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.59.1",
+    "@types/mailparser": "^3.4.6",
     "@types/node": "^22.0.0",
     "@types/pg": "^8.20.0",
     "@types/react": "^19.0.0",
