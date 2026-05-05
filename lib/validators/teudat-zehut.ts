@@ -1,6 +1,7 @@
 export function normalizeTeudatZehut(input: string): string {
   const digits = input.replace(/\D/g, "");
-  if (digits.length === 0 || digits.length > 9) return digits;
+  if (digits.length === 0) return "";
+  if (digits.length > 9) return digits.slice(-9);
   return digits.padStart(9, "0");
 }
 

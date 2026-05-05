@@ -16,4 +16,7 @@ describe("teudat zehut", () => {
   it("normalizes by left-padding to 9 digits", () => {
     expect(normalizeTeudatZehut("18")).toBe("000000018");
   });
+  it("trims to last 9 digits when input has more than 9 digits", () => {
+    expect(normalizeTeudatZehut("999000000018")).toBe("000000018");
+  });
 });
