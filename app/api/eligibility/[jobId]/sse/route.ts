@@ -1,6 +1,6 @@
 import { db, createListenClient } from "@/lib/db/client";
 import { jobEvents } from "@/lib/db/schema/job-events";
-import { asc, eq, gt } from "drizzle-orm";
+import { and, asc, eq, gt } from "drizzle-orm";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -25,10 +25,9 @@ export async function GET(
       const past = await db
         .select()
         .from(jobEvents)
-        .where(lastId ? gt(jobEvents.id, lastId) : eq(jobEvents.jobId, jobId))
+        .where(lastId ? and(eq(jobEvents.jobId, jobId), gt(jobEvents.id, lastId)) : eq(jobEvents.jobId, jobId))
         .orderBy(asc(jobEvents.occurredAt));
       for (const ev of past) {
-        if (ev.jobId !== jobId) continue;
         controller.enqueue(frame(ev.id, ev.payload));
       }
 

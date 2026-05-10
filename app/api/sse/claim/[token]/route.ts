@@ -1,6 +1,6 @@
 import { db, createListenClient } from "@/lib/db/client";
 import { claimEvents } from "@/lib/db/schema/claim-events";
-import { asc, eq, gt } from "drizzle-orm";
+import { and, asc, eq, gt } from "drizzle-orm";
 import { verifyClaimToken } from "@/lib/jwt/claim-token";
 
 export const runtime = "nodejs";
@@ -27,10 +27,9 @@ export async function GET(
       const past = await db
         .select()
         .from(claimEvents)
-        .where(lastId ? gt(claimEvents.id, lastId) : eq(claimEvents.claimId, claimId))
+        .where(lastId ? and(eq(claimEvents.claimId, claimId), gt(claimEvents.id, lastId)) : eq(claimEvents.claimId, claimId))
         .orderBy(asc(claimEvents.occurredAt));
       for (const e of past) {
-        if (e.claimId !== claimId) continue;
         controller.enqueue(frame(e.id, e));
       }
 
