@@ -271,6 +271,21 @@ npm run seed:demo    # Insert a demo claim, print tracker URL
 
 ---
 
+## Scaling considerations
+
+The current stack is sized for portfolio demo + low-traffic launch on the Vercel Hobby / Neon free tier. The two primitives that constrain it at scale are documented here so a reviewer doesn't have to derive them from the code.
+
+| Primitive | Limit | Mitigation when it bites |
+|---|---|---|
+| **SSE + LISTEN/NOTIFY** | Each connected tracker holds one Vercel Function instance + one direct (unpooled) Neon connection. Neon free-tier compute caps direct connections; Vercel Active CPU bills idle SSE time. | Swap the public tracker SSE for a fanout service (Ably, Pusher, or Supabase Realtime). The `pg_notify` trigger stays; only the consumer changes. Triggered when concurrent trackers exceed ~50. |
+| **Eligibility pipeline** | Runs inline inside the upload request (Vercel kills detached async work). Bound by `maxDuration = 60s`. | Move pipeline behind a Vercel Queue (public beta) when median runtime crosses ~15s. Client SSE replay path already exists for async resumption. |
+| **AviationStack quota** | Free tier = 100 lookups / month. | 30-day Postgres cache already in place. When real traffic ramps, swap adapter to Cirium / OAG (paid). The interface is one file: `services/flights/aviationstack.ts`. |
+| **Magic-link rate limit** | Upstash free tier = 10k requests / day. | Sufficient until ~1k DAU. Upgrade or move to Redis on Fly. |
+
+The architecture choice to make: SSE+LISTEN/NOTIFY is the right tool for a demo (zero infra, perfect latency, ~120 lines), the wrong tool past low triple-digit concurrent connections. Documented here so the trade is visible.
+
+---
+
 ## Status & scope
 
 **What works** (53 passing tests, full Vercel build green):
