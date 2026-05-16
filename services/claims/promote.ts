@@ -6,6 +6,7 @@ import { users } from "@/lib/db/schema/users";
 import { eq } from "drizzle-orm";
 import { signClaimToken } from "@/lib/jwt/claim-token";
 import { AppError } from "@/lib/errors";
+import { randomUUID } from "node:crypto";
 
 export async function promoteJobToClaim(jobId: string, contact: { email?: string; phone?: string }) {
   const [job] = await db.select().from(eligibilityJobs).where(eq(eligibilityJobs.id, jobId)).limit(1);
@@ -43,7 +44,7 @@ export async function promoteJobToClaim(jobId: string, contact: { email?: string
     passengerName: extracted?.passenger_name ?? "passenger",
     contactEmail: contact.email,
     contactPhone: contact.phone,
-    claimToken: "tmp",
+    claimToken: `pending:${randomUUID()}`,
     source: "file_to_claim",
   } as const;
 

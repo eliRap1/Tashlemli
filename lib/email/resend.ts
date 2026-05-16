@@ -11,6 +11,7 @@ export async function sendEmail(opts: {
   text?: string;
   replyTo?: string;
   headers?: Record<string, string>;
+  attachments?: Array<{ filename: string; content: Buffer | string; contentType?: string }>;
 }) {
   const res = await resend.emails.send({
     from: env.RESEND_FROM,
@@ -20,7 +21,8 @@ export async function sendEmail(opts: {
     text: opts.text,
     replyTo: opts.replyTo,
     headers: opts.headers,
-  });
+    attachments: opts.attachments,
+  } as any);
   if (res.error) throw new AppError("EMAIL_SEND_FAIL", res.error.message, 502, res.error);
   return res.data!.id;
 }
