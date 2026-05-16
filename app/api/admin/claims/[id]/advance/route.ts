@@ -4,6 +4,7 @@ import { db } from "@/lib/db/client";
 import { claims } from "@/lib/db/schema/claims";
 import { claimEvents } from "@/lib/db/schema/claim-events";
 import { eq } from "drizzle-orm";
+import { isAdmin } from "@/lib/auth/admin";
 
 const STAGE_LABELS: Record<string, { he: string; en: string; index: number }> = {
   "intake.received":    { he: "תיק התקבל",        en: "Claim received",         index: 1 },
@@ -28,7 +29,7 @@ const Body = z.object({ code: z.string(), metadata: z.record(z.string(), z.any()
 export const runtime = "nodejs";
 
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
-  if (req.headers.get("x-ops-password") !== process.env.OPS_PASSWORD) {
+  if (!(await isAdmin(req))) {
     return NextResponse.json({ error: "forbidden" }, { status: 403 });
   }
   const { id } = await params;

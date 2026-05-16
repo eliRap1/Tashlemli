@@ -1,12 +1,6 @@
-import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
+export const dynamic = "force-dynamic";
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
-  const v = (await cookies()).get("tshl_ops")?.value;
-  const path = (typeof globalThis !== "undefined" && (globalThis as any).headers ? "" : "");
-  if (!v || v !== process.env.OPS_COOKIE) {
-    if (!path.endsWith("/admin/login")) redirect("/admin/login");
-  }
   return (
     <div dir="rtl" className="min-h-screen bg-terminal text-fluorescent">
       <header className="px-6 py-4 border-b border-fluorescent/10 flex items-center justify-between">
