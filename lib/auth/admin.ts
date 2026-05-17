@@ -9,5 +9,18 @@ export async function isAdmin(req: Request): Promise<boolean> {
 }
 
 export async function setAdminCookie() {
-  (await cookies()).set(COOKIE, process.env.OPS_COOKIE!, { httpOnly: true, secure: true, sameSite: "lax", path: "/", maxAge: 8 * 60 * 60 });
+  const cookieValue = process.env.OPS_COOKIE;
+  if (!cookieValue) {
+    // OPS_COOKIE is required for admin sessions; fail loudly rather than
+    // writing the string "undefined" as the cookie value, which would make
+    // isAdmin() return true for any unauthenticated request.
+    throw new Error("OPS_COOKIE environment variable is not set");
+  }
+  (await cookies()).set(COOKIE, cookieValue, {
+    httpOnly: true,
+    secure: true,
+    sameSite: "lax",
+    path: "/",
+    maxAge: 8 * 60 * 60,
+  });
 }
