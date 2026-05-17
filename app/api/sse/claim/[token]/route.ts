@@ -1,6 +1,6 @@
 import { db, createListenClient } from "@/lib/db/client";
 import { claimEvents } from "@/lib/db/schema/claim-events";
-import { asc, eq, gt } from "drizzle-orm";
+import { asc, and, eq, gt } from "drizzle-orm";
 import { verifyClaimToken } from "@/lib/jwt/claim-token";
 
 export const runtime = "nodejs";
@@ -24,13 +24,19 @@ export async function GET(
     async start(controller) {
       const sql = createListenClient();
 
+      // Always filter by claimId so a reconnecting client (Last-Event-ID
+      // present) cannot receive events from unrelated claims whose UUIDs
+      // sort higher.
       const past = await db
         .select()
         .from(claimEvents)
-        .where(lastId ? gt(claimEvents.id, lastId) : eq(claimEvents.claimId, claimId))
+        .where(
+          lastId
+            ? and(eq(claimEvents.claimId, claimId), gt(claimEvents.id, lastId))
+            : eq(claimEvents.claimId, claimId),
+        )
         .orderBy(asc(claimEvents.occurredAt));
       for (const e of past) {
-        if (e.claimId !== claimId) continue;
         controller.enqueue(frame(e.id, e));
       }
 
