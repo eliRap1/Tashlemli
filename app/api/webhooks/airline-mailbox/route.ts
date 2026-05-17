@@ -9,6 +9,13 @@ import { parseEml } from "@/services/inbound/parser";
 import { matchClaim } from "@/services/inbound/match";
 import { classifyReply } from "@/services/inbound/classifier";
 
+// TODO(audit): This endpoint has no HMAC/signature verification. Any internet
+// client can POST a forged airline reply and advance a claim's state or inject
+// opsInbox items. Add Resend inbound webhook signature verification:
+//   1. Add RESEND_WEBHOOK_SECRET to env (from Resend dashboard → Webhooks).
+//   2. Verify the svix-signature / x-resend-signature header before processing.
+// See: https://resend.com/docs/dashboard/webhooks/introduction#verify-webhook-signature
+
 export const runtime = "nodejs";
 export const maxDuration = 60;
 
