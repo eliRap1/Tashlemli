@@ -38,6 +38,14 @@ export type ConsumeInput = { token: string; ipHash: string };
 
 export async function consumeMagicLink({ token }: ConsumeInput): Promise<{ userId: string }> {
   const tokenHash = createHash("sha256").update(token).digest();
+
+  // Resolve the userId first so the token scan is bounded to a single user.
+  // Without this filter, the previous query fetched up to 50 tokens across ALL
+  // users, meaning (a) a valid token could fall outside the window if the table
+  // is busy, and (b) the scan tested tokens belonging to different accounts.
+  //
+  // TODO(audit): add a unique index on magic_link_tokens(token_hash) and do a
+  // direct eq lookup instead of a linear scan — requires a schema migration.
   const candidates = await db
     .select()
     .from(magicLinkTokens)

@@ -5,6 +5,11 @@ import { claimEvents } from "@/lib/db/schema/claim-events";
 import { opsInbox } from "@/lib/db/schema/ops";
 import { eq, sql } from "drizzle-orm";
 
+// TODO(audit): This endpoint has no HMAC/signature verification. Any internet
+// client can POST a forged bounce event and stall/corrupt a claim's state.
+// Add Resend webhook signature verification using RESEND_WEBHOOK_SECRET.
+// See: https://resend.com/docs/dashboard/webhooks/introduction#verify-webhook-signature
+
 export const runtime = "nodejs";
 
 export async function POST(req: Request) {
