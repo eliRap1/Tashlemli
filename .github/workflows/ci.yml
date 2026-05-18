@@ -18,7 +18,10 @@ jobs:
           cache: npm
 
       - name: install
-        run: npm ci
+        # Use `npm install` (not `npm ci`) so platform-specific optional
+        # native deps (sharp, esbuild, @emnapi/*) reconcile on Linux CI
+        # even when the lockfile was last regenerated on Windows.
+        run: npm install --no-audit --no-fund
 
       - name: typecheck
         run: npm run typecheck
