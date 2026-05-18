@@ -22,7 +22,7 @@ The README is structured for engineering review. The architecture decisions, tra
 
 ## Demo
 
-- **Production:** *(Vercel preview link &mdash; replace once domain is attached)*
+- **Production:** [tashlemli-elirap1s-projects.vercel.app](https://tashlemli-elirap1s-projects.vercel.app) &mdash; if the page is gated behind a Vercel auth screen, deployment protection is still on; toggle it off in the project's _Settings &rarr; Deployment Protection_ panel for a public demo.
 - **Landing tour:** scroll the hero, watch the departures board reverse from `CANCELED` to `ON TIME`, the floating shekel coin, the verdict-style competitor comparison, and the pinned How-It-Works horizontal scroll.
 - **Eligibility funnel:** `/check` → drop any JPEG (boarding pass), or click one of four quick-pick chips, or type a flight number + date. Within ~2&nbsp;s the system returns the entitlement amount and grounds.
 - **Cinematic tracker:** `/claim/<token>` &mdash; public, signed, sharable. Real-time event stream over SSE. Schematic map shows the claim flying back from the airline HQ to the passenger.
