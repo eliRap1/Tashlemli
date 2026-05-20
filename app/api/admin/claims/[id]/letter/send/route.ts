@@ -50,6 +50,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     text: letter.subject_en,
     replyTo,
     headers: { "Message-Id": messageId },
+    attachments: [{ filename: `tashlemli-demand-${id.slice(0, 8)}.pdf`, content: buf, contentType: "application/pdf" }],
   });
 
   await db.insert(claimEvents).values({ claimId: id, code: "demand.sent", actor: "lawyer", labelHe: "נשלח לחברת התעופה", labelEn: "Demand sent", metadata: { messageId, to } });

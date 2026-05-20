@@ -1,13 +1,21 @@
 import { cookies } from "next/headers";
-
-const COOKIE = "tshl_ops";
+import { AppError } from "@/lib/errors";
+import { ADMIN_COOKIE, getAdminCookieSecret, hasValidAdminCookie, hasValidAdminPassword } from "./admin-credentials";
 
 export async function isAdmin(req: Request): Promise<boolean> {
-  if (req.headers.get("x-ops-password") === process.env.OPS_PASSWORD) return true;
-  const v = (await cookies()).get(COOKIE)?.value;
-  return Boolean(v) && v === process.env.OPS_COOKIE;
+  if (hasValidAdminPassword(req.headers.get("x-ops-password"))) return true;
+  const v = (await cookies()).get(ADMIN_COOKIE)?.value;
+  return hasValidAdminCookie(v);
 }
 
 export async function setAdminCookie() {
-  (await cookies()).set(COOKIE, process.env.OPS_COOKIE!, { httpOnly: true, secure: true, sameSite: "lax", path: "/", maxAge: 8 * 60 * 60 });
+  const secret = getAdminCookieSecret();
+  if (!secret) throw new AppError("OPS_COOKIE_NOT_CONFIGURED", "admin cookie secret is not configured", 503);
+  (await cookies()).set(ADMIN_COOKIE, secret, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    path: "/",
+    maxAge: 8 * 60 * 60,
+  });
 }

@@ -22,7 +22,7 @@ The README is structured for engineering review. The architecture decisions, tra
 
 ## Demo
 
-- **Production:** *(Vercel preview link &mdash; replace once domain is attached)*
+- **Production:** [tashlemli-elirap1s-projects.vercel.app](https://tashlemli-elirap1s-projects.vercel.app) &mdash; if the page is gated behind a Vercel auth screen, deployment protection is still on; toggle it off in the project's _Settings &rarr; Deployment Protection_ panel for a public demo.
 - **Landing tour:** scroll the hero, watch the departures board reverse from `CANCELED` to `ON TIME`, the floating shekel coin, the verdict-style competitor comparison, and the pinned How-It-Works horizontal scroll.
 - **Eligibility funnel:** `/check` → drop any JPEG (boarding pass), or click one of four quick-pick chips, or type a flight number + date. Within ~2&nbsp;s the system returns the entitlement amount and grounds.
 - **Cinematic tracker:** `/claim/<token>` &mdash; public, signed, sharable. Real-time event stream over SSE. Schematic map shows the claim flying back from the airline HQ to the passenger.
@@ -268,6 +268,21 @@ npm run seed:demo    # Insert a demo claim, print tracker URL
 - **No traditional auth library.** Magic-link via Resend, sessions in Postgres, JWT cookie. ~120 lines of auth code. No vendor lock-in, no NextAuth abstraction overhead.
 - **Cinematic but accessible.** All Motion animations honor `prefers-reduced-motion` (defined in `app/globals.css`).
 - **Stub modes are first-class.** AviationStack, Turnstile, and AI Gateway each have deterministic stub fallbacks. Demo runs end-to-end on Hobby tier with no paid keys.
+
+---
+
+## Scaling considerations
+
+The current stack is sized for portfolio demo + low-traffic launch on the Vercel Hobby / Neon free tier. The two primitives that constrain it at scale are documented here so a reviewer doesn't have to derive them from the code.
+
+| Primitive | Limit | Mitigation when it bites |
+|---|---|---|
+| **SSE + LISTEN/NOTIFY** | Each connected tracker holds one Vercel Function instance + one direct (unpooled) Neon connection. Neon free-tier compute caps direct connections; Vercel Active CPU bills idle SSE time. | Swap the public tracker SSE for a fanout service (Ably, Pusher, or Supabase Realtime). The `pg_notify` trigger stays; only the consumer changes. Triggered when concurrent trackers exceed ~50. |
+| **Eligibility pipeline** | Runs inline inside the upload request (Vercel kills detached async work). Bound by `maxDuration = 60s`. | Move pipeline behind a Vercel Queue (public beta) when median runtime crosses ~15s. Client SSE replay path already exists for async resumption. |
+| **AviationStack quota** | Free tier = 100 lookups / month. | 30-day Postgres cache already in place. When real traffic ramps, swap adapter to Cirium / OAG (paid). The interface is one file: `services/flights/aviationstack.ts`. |
+| **Magic-link rate limit** | Upstash free tier = 10k requests / day. | Sufficient until ~1k DAU. Upgrade or move to Redis on Fly. |
+
+The architecture choice to make: SSE+LISTEN/NOTIFY is the right tool for a demo (zero infra, perfect latency, ~120 lines), the wrong tool past low triple-digit concurrent connections. Documented here so the trade is visible.
 
 ---
 

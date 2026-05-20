@@ -9,3 +9,6 @@ build
 .DS_Store
 .vercel
 .turbo
+tsconfig.tsbuildinfo
+.codex
+.claude
