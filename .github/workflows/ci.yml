@@ -1,0 +1,35 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: install
+        # Use `npm install` (not `npm ci`) so platform-specific optional
+        # native deps (sharp, esbuild, @emnapi/*) reconcile on Linux CI
+        # even when the lockfile was last regenerated on Windows.
+        run: npm install --no-audit --no-fund
+
+      - name: typecheck
+        run: npm run typecheck
+
+      - name: test
+        run: npm test
+
+      - name: build
+        run: npm run build
+        env:
+          NEXT_TELEMETRY_DISABLED: '1'
