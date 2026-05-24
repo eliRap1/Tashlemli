@@ -36,7 +36,7 @@ export async function requestMagicLink({ email, ipHash }: RequestInput): Promise
 
 export type ConsumeInput = { token: string; ipHash: string };
 
-export async function consumeMagicLink({ token }: ConsumeInput): Promise<{ userId: string }> {
+export async function consumeMagicLink({ token, ipHash }: ConsumeInput): Promise<{ userId: string }> {
   const tokenHash = createHash("sha256").update(token).digest();
   const candidates = await db
     .select()
@@ -53,6 +53,18 @@ export async function consumeMagicLink({ token }: ConsumeInput): Promise<{ userI
     }
   }
   if (!found) throw new AppError("MAGIC_INVALID", "invalid or expired token", 401);
+
+  // Compare the IP hash recorded at request time with the one provided at
+  // consumption time. Different IPs may indicate token interception.
+  if (found.ipHash !== ipHash) {
+    if (process.env.NODE_ENV !== "production") {
+      console.warn(
+        `[magic-link] IP hash mismatch (stored: ${found.ipHash}, got: ${ipHash}) — allowing in dev mode`,
+      );
+    } else {
+      throw new AppError("MAGIC_IP_MISMATCH", "token was requested from a different IP address", 401);
+    }
+  }
 
   await db.update(magicLinkTokens).set({ consumedAt: new Date() }).where(eq(magicLinkTokens.id, found.id));
   return { userId: found.userId };
