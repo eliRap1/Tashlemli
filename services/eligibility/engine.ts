@@ -4,13 +4,12 @@ const EUR_TO_ILS = 4.37;
 const IL_STATUTE_YEARS = 4;
 const EU_STATUTE_YEARS_IL_COURT = 2;
 
-function isOutOfStatute(flightDateIso: string, jurisdiction: ComputeInput["jurisdiction"]): boolean {
+function isOutOfStatute(flightDateIso: string, jurisdiction: "EU261" | "IL2012"): boolean {
   const flight = new Date(flightDateIso + "T00:00:00Z").getTime();
   const now = Date.now();
   const years = (now - flight) / (1000 * 60 * 60 * 24 * 365.25);
   if (jurisdiction === "IL2012") return years > IL_STATUTE_YEARS;
-  if (jurisdiction === "EU261") return years > EU_STATUTE_YEARS_IL_COURT;
-  return years > IL_STATUTE_YEARS && years > EU_STATUTE_YEARS_IL_COURT;
+  return years > EU_STATUTE_YEARS_IL_COURT;
 }
 
 function eu261(input: ComputeInput): ComputeResult {
@@ -95,13 +94,23 @@ function reject(reason: NonNullable<ComputeResult["rejection_reason"]>, _jur: st
 }
 
 export function compute(input: ComputeInput): ComputeResult {
-  if (isOutOfStatute(input.flight_date, input.jurisdiction)) {
-    return reject("out_of_statute", input.jurisdiction);
+  if (input.jurisdiction !== "BOTH") {
+    if (isOutOfStatute(input.flight_date, input.jurisdiction)) {
+      return reject("out_of_statute", input.jurisdiction);
+    }
+    if (input.jurisdiction === "EU261") return eu261(input);
+    return il2012(input);
   }
-  if (input.jurisdiction === "EU261") return eu261(input);
-  if (input.jurisdiction === "IL2012") return il2012(input);
-  const eu = eu261(input);
-  const il = il2012(input);
+  // BOTH: check each jurisdiction independently so a flight within one
+  // statute but outside the other is not silently granted the expired one.
+  const euStatute = isOutOfStatute(input.flight_date, "EU261");
+  const ilStatute = isOutOfStatute(input.flight_date, "IL2012");
+  if (euStatute && ilStatute) return reject("out_of_statute", "BOTH");
+  const eu = euStatute ? null : eu261(input);
+  const il = ilStatute ? null : il2012(input);
+  if (!eu && !il) return reject("out_of_statute", "BOTH");
+  if (!eu) return il!;
+  if (!il) return eu;
   if (!eu.eligible && !il.eligible) return eu;
   if (!eu.eligible) return il;
   if (!il.eligible) return eu;

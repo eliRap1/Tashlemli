@@ -20,6 +20,15 @@ export async function promoteJobToClaim(jobId: string, contact: { email?: string
   const result = job.result as any;
   if (!result.eligible) throw new AppError("PROMOTE_INELIGIBLE", "claim is not eligible", 422);
 
+  // Derive airline IATA from the extracted flight number (e.g. "LY 381" → "LY").
+  // ComputeResult carries neither airline_iata nor jurisdiction; those come from
+  // the compute input, which is built in the runner from the flight record.
+  const flightNumberRaw: string | undefined = extracted?.flight_number;
+  const airlineIata: string | null = flightNumberRaw
+    ? (flightNumberRaw.replace(/\s+/g, "").match(/^([A-Z0-9]{2,3})\d/)?.[1] ?? null)
+    : null;
+  const jurisdiction: string = airlineIata === "LY" ? "BOTH" : "EU261";
+
   let userId: string | undefined;
   if (contact.email || contact.phone) {
     const [u] = await db
@@ -37,8 +46,8 @@ export async function promoteJobToClaim(jobId: string, contact: { email?: string
   const newClaim = {
     userId,
     flightId: job.flightId ?? undefined,
-    airlineIata: result.airline_iata ?? null,
-    jurisdiction: result.jurisdiction ?? "BOTH",
+    airlineIata,
+    jurisdiction,
     reasonCategory: extracted?.incident_hint ?? "unknown",
     amountIls: result.amount_ils as number,
     passengerName: extracted?.passenger_name ?? "passenger",
