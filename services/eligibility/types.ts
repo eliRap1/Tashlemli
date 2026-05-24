@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const ExtractedSchema = z.object({
-  flight_number: z.string().regex(/^[A-Z]{2,3}\s?\d{1,4}$/),
+  flight_number: z.string().regex(/^[A-Z0-9]{2,3}\s?\d{1,4}$/),
   departure_date: z.string().date(),
   origin_iata: z.string().length(3),
   destination_iata: z.string().length(3),
