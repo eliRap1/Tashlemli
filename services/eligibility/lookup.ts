@@ -72,7 +72,7 @@ function distanceFromIata(a: string | null, b: string | null): number {
     CDG: [49.0097, 2.5479],
   };
   const p = M[a]; const q = M[b];
-  if (!p || !q) return 2000;
+  if (!p || !q) throw new AppError("LOOKUP_UNKNOWN_ROUTE", `Unknown airport pair: ${a}-${b}`, 422);
   const R = 6371;
   const dLat = ((q[0] - p[0]) * Math.PI) / 180;
   const dLon = ((q[1] - p[1]) * Math.PI) / 180;
