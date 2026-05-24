@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { createHmac, timingSafeEqual } from "node:crypto";
 import { db } from "@/lib/db/client";
 import { claims } from "@/lib/db/schema/claims";
 import { claimEvents } from "@/lib/db/schema/claim-events";
@@ -12,9 +13,57 @@ import { classifyReply } from "@/services/inbound/classifier";
 export const runtime = "nodejs";
 export const maxDuration = 60;
 
+/**
+ * Verify a Svix webhook signature (used by Resend).
+ * See https://docs.svix.com/receiving/verifying-payloads/how
+ */
+function verifySvixSignature(
+  payload: string,
+  headers: Headers,
+  secret: string,
+): boolean {
+  const msgId = headers.get("svix-id") ?? "";
+  const msgTimestamp = headers.get("svix-timestamp") ?? "";
+  const msgSignature = headers.get("svix-signature") ?? "";
+  if (!msgId || !msgTimestamp || !msgSignature) return false;
+
+  // Svix secret is prefixed with "whsec_"; strip it to get the raw base64 key.
+  const rawSecret = secret.startsWith("whsec_")
+    ? Buffer.from(secret.slice("whsec_".length), "base64")
+    : Buffer.from(secret, "base64");
+
+  const signedContent = `${msgId}.${msgTimestamp}.${payload}`;
+  const expectedSig = createHmac("sha256", rawSecret)
+    .update(signedContent)
+    .digest("base64");
+
+  // svix-signature may contain multiple space-separated "v1,<base64>" entries.
+  return msgSignature.split(" ").some((entry) => {
+    const [, sig] = entry.split(",");
+    if (!sig) return false;
+    try {
+      const a = Buffer.from(expectedSig, "base64");
+      const b = Buffer.from(sig, "base64");
+      return a.length === b.length && timingSafeEqual(a, b);
+    } catch {
+      return false;
+    }
+  });
+}
+
 export async function POST(req: Request) {
+  const rawBody = await req.text();
+  const webhookSecret = process.env.RESEND_WEBHOOK_SECRET;
+  if (webhookSecret) {
+    if (!verifySvixSignature(rawBody, req.headers, webhookSecret)) {
+      return NextResponse.json({ error: "invalid_signature" }, { status: 401 });
+    }
+  } else {
+    console.warn("[airline-mailbox] RESEND_WEBHOOK_SECRET is not set — skipping signature verification (dev mode)");
+  }
+
   const ct = req.headers.get("content-type") ?? "";
-  const body = ct.includes("application/json") ? await req.json() : null;
+  const body = ct.includes("application/json") ? JSON.parse(rawBody) : null;
   if (!body) return NextResponse.json({ error: "unsupported" }, { status: 415 });
 
   const raw = body.raw ?? body.email?.raw ?? null;
