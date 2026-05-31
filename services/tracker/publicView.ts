@@ -67,6 +67,7 @@ export function redactPassenger(full: string, mode: "anonymous" | "public_defaul
   return lastInitial ? `${first} ${lastInitial}.` : first;
 }
 
-function redactFlight(c: { airlineIata: string | null }, _mode: "anonymous" | "public_default"): string {
+function redactFlight(c: { airlineIata: string | null }, mode: "anonymous" | "public_default"): string {
+  if (mode === "anonymous") return "—";
   return c.airlineIata ?? "—";
 }
