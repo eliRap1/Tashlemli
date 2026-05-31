@@ -28,7 +28,7 @@ export async function extractFromImage(imageBytes: Buffer, contentType: string):
     maxRetries: 2,
   });
   if (object.confidence < 0.6) {
-    throw new AppError("EXTRACT_LOW_CONFIDENCE", `EXTRACT_LOW_CONFIDENCE: confidence ${object.confidence} below 0.6`, 422);
+    throw new AppError("EXTRACT_LOW_CONFIDENCE", `confidence ${object.confidence.toFixed(2)} below threshold 0.6`, 422);
   }
   return object;
 }

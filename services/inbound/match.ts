@@ -8,6 +8,7 @@ export async function matchClaim(plusAddress: string | undefined, references: st
     const m = plusAddress.match(/claims\+([^@]+)@/i);
     if (m) {
       const short = m[1];
+      if (!/^[A-Za-z0-9_-]+$/.test(short)) return null;
       const [c] = await db.select().from(claims).where(like(claims.claimToken, `${short}%`)).limit(1);
       if (c) return c.id;
     }
