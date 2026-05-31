@@ -29,7 +29,7 @@ describe("extractFromImage", () => {
     const { generateObject } = await import("ai");
     vi.mocked(generateObject).mockResolvedValueOnce({ object: { ...(await mockObj()), confidence: 0.4 } } as any);
     const { extractFromImage } = await import("@/services/eligibility/extract");
-    await expect(extractFromImage(Buffer.from([1]), "image/jpeg")).rejects.toThrow(/EXTRACT_LOW_CONFIDENCE/);
+    await expect(extractFromImage(Buffer.from([1]), "image/jpeg")).rejects.toThrow(/below threshold 0\.6/);
   });
 });
 
