@@ -41,7 +41,11 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     await db.update(documents).set({ status: "sent_to_airline", blobKey: stored.url, hashSha256: hash }).where(eq(documents.id, doc.id));
   }
 
-  const replyTo = `claims+${c.claimToken.slice(0, 24)}@in.tashlemli.co.il`;
+  // Use the claim UUID (hex, no dashes) as the routing token so that the
+  // plus-address is unique per claim. Slicing the JWT (claimToken) would
+  // produce the same 24-char header prefix for every HS256 token, routing
+  // all airline replies to whichever claim happens to appear first in the DB.
+  const replyTo = `claims+${id.replace(/-/g, "")}@in.tashlemli.co.il`;
   const messageId = `<${id}.${Date.now()}@${env.APP_BASE_URL.replace(/^https?:\/\//, "")}>`;
   await sendEmail({
     to,

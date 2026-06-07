@@ -1,15 +1,23 @@
 import { db } from "@/lib/db/client";
 import { claims } from "@/lib/db/schema/claims";
 import { claimEvents } from "@/lib/db/schema/claim-events";
-import { like, or, sql } from "drizzle-orm";
+import { or, sql } from "drizzle-orm";
 
 export async function matchClaim(plusAddress: string | undefined, references: string[], inReplyTo: string | null): Promise<string | null> {
   if (plusAddress) {
-    const m = plusAddress.match(/claims\+([^@]+)@/i);
+    const m = plusAddress.match(/claims\+([0-9a-f]+)@/i);
     if (m) {
-      const short = m[1];
-      const [c] = await db.select().from(claims).where(like(claims.claimToken, `${short}%`)).limit(1);
-      if (c) return c.id;
+      // The routing token is the claim UUID with hyphens removed (32 hex chars).
+      // Re-insert the hyphens to reconstruct the canonical UUID for a precise
+      // equality lookup. Previously we used a LIKE prefix on claimToken, but all
+      // HS256 JWTs share the same 24-char header prefix so that approach always
+      // returned the same first claim in the DB.
+      const hex = m[1].toLowerCase();
+      if (hex.length === 32) {
+        const uuid = `${hex.slice(0,8)}-${hex.slice(8,12)}-${hex.slice(12,16)}-${hex.slice(16,20)}-${hex.slice(20)}`;
+        const [c] = await db.select({ id: claims.id }).from(claims).where(sql`id = ${uuid}::uuid`).limit(1);
+        if (c) return c.id;
+      }
     }
   }
   const candidates = [inReplyTo, ...references].filter(Boolean) as string[];
