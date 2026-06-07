@@ -78,7 +78,7 @@ function il2012(input: ComputeInput): ComputeResult {
 
 function reject(reason: NonNullable<ComputeResult["rejection_reason"]>, _jur: string): ComputeResult {
   const messages: Record<string, [string, string]> = {
-    out_of_statute: [`חלפו יותר משש שנים, התביעה התיישנה.`, `Out of statute of limitations.`],
+    out_of_statute: [`תקופת ההתיישנות חלפה (4 שנים לפי חוק ישראלי / 2 שנים לפי EU 261).`, `Out of statute of limitations (4 years under IL law / 2 years under EU 261).`],
     delay_too_short: [`העיכוב היה קצר מהסף הנדרש.`, `Delay below threshold.`],
     extraordinary_circumstance: [`האירוע סווג כנסיבה יוצאת דופן.`, `Classified as extraordinary circumstance.`],
     no_jurisdiction: [`לא נמצאה סמכות שיפוט.`, `No applicable jurisdiction.`],
