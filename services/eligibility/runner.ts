@@ -30,7 +30,7 @@ export async function runJob(jobId: string, fileBytes: Buffer, contentType: stri
       delay_minutes: facts.delay_minutes,
       cancellation: facts.cancellation,
       jurisdiction: flight.airlineIata === "LY" ? "BOTH" : "EU261",
-      reason_category: extracted.incident_hint === "cancellation" ? "carrier_fault" : "unknown",
+      reason_category: ["cancellation", "delay", "denied_boarding", "rerouted"].includes(extracted.incident_hint) ? "carrier_fault" : "unknown",
       flight_date: extracted.departure_date,
     });
 
