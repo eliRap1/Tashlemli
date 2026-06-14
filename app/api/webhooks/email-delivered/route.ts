@@ -6,6 +6,9 @@ import { eq, sql } from "drizzle-orm";
 
 export const runtime = "nodejs";
 
+// TODO(audit): verify Resend webhook signature using the `svix-signature` header
+// (Resend uses Svix to deliver webhooks; see https://resend.com/docs/dashboard/webhooks/signatures).
+// Set RESEND_WEBHOOK_SECRET env var and validate before processing.
 export async function POST(req: Request) {
   const evt = await req.json() as { type?: string; data?: { message_id?: string; tags?: any; smtp?: { remote_host?: string; remote_ip?: string } } };
   if (evt.type !== "email.delivered") return NextResponse.json({ ok: true });

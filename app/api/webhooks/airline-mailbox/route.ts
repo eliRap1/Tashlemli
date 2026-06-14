@@ -12,6 +12,10 @@ import { classifyReply } from "@/services/inbound/classifier";
 export const runtime = "nodejs";
 export const maxDuration = 60;
 
+// TODO(audit): add HMAC or shared-secret verification for the inbound-email provider
+// (e.g., Resend Inbound, Cloudmailin, or Postmark all support a signed webhook token).
+// Set INBOUND_WEBHOOK_SECRET env var and validate before processing to prevent
+// spoofed airline replies from manipulating claim state.
 export async function POST(req: Request) {
   const ct = req.headers.get("content-type") ?? "";
   const body = ct.includes("application/json") ? await req.json() : null;
