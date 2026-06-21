@@ -7,6 +7,8 @@ import { eq, sql } from "drizzle-orm";
 
 export const runtime = "nodejs";
 
+// TODO(audit): This endpoint is unauthenticated. Verify Resend webhook signatures
+// (svix) before production to prevent spoofed bounce events that could stall claims.
 export async function POST(req: Request) {
   const evt = await req.json() as { type?: string; data?: { message_id?: string; reason?: string } };
   if (evt.type !== "email.bounced") return NextResponse.json({ ok: true });
@@ -18,6 +20,8 @@ export async function POST(req: Request) {
 
   await db.insert(claimEvents).values({ claimId: demand.claimId, code: "airline.bounced", actor: "airline", labelHe: "המכתב חזר", labelEn: "Email bounced", metadata: { reason: evt.data?.reason ?? null } });
   await db.insert(opsInbox).values({ claimId: demand.claimId, kind: "airline.bounced", payload: evt });
-  await db.update(claims).set({ currentState: "airline.bounced" }).where(eq(claims.id, demand.claimId));
+  // Stage 7 = demand.sent; a bounce keeps the claim at the same lifecycle position
+  // (letter sent but not delivered) so we mirror the stageIndex from the send step.
+  await db.update(claims).set({ currentState: "airline.bounced", currentStageIndex: 7 }).where(eq(claims.id, demand.claimId));
   return NextResponse.json({ ok: true });
 }
