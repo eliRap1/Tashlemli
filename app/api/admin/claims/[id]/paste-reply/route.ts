@@ -23,9 +23,16 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     auto_reply: "airline.replied",
     unrelated: "airline.replied",
   };
+  const stageIndex: Record<string, number> = {
+    "airline.replied":        9,
+    "airline.info_requested": 9,
+    "airline.denied":         9,
+    "settlement.offered":    11,
+  };
   const code = codeMap[cls.intent];
+  const idx = stageIndex[code] ?? 9;
   await db.insert(claimEvents).values({ claimId: id, code, actor: "airline", labelHe: cls.summary_he, labelEn: subject, metadata: { manual: true, classification: cls, from, subject } });
   if (cls.requires_lawyer) await db.insert(opsInbox).values({ claimId: id, kind: code, payload: { from, subject, body, cls } });
-  await db.update(claims).set({ currentState: code }).where(eq(claims.id, id));
+  await db.update(claims).set({ currentState: code, currentStageIndex: idx }).where(eq(claims.id, id));
   return NextResponse.json({ ok: true, code, classification: cls });
 }

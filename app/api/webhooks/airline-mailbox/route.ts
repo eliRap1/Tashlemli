@@ -12,6 +12,10 @@ import { classifyReply } from "@/services/inbound/classifier";
 export const runtime = "nodejs";
 export const maxDuration = 60;
 
+// TODO(audit): This endpoint is unauthenticated. Add Resend webhook signature
+// verification using the svix library (already a transitive dependency) and a
+// RESEND_WEBHOOK_SECRET env var before going to production. Without it, any
+// party can POST a fake airline reply and advance claim state.
 export async function POST(req: Request) {
   const ct = req.headers.get("content-type") ?? "";
   const body = ct.includes("application/json") ? await req.json() : null;

@@ -1,4 +1,9 @@
 import { AppError } from "@/lib/errors";
+// TODO(audit): README lists /api/webhooks/esign but the route does not exist.
+// When Documenso fires the signing-complete webhook, poa.signed must be recorded
+// on the claim. Create app/api/webhooks/esign/route.ts that verifies the
+// Documenso webhook secret, looks up poaSignatures by documensoId, and inserts
+// a poa.signed claim event + advances currentState / currentStageIndex to 3.
 
 const BASE = process.env.DOCUMENSO_BASE_URL ?? "https://app.documenso.com/api/v1";
 

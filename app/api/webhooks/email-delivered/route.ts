@@ -6,6 +6,8 @@ import { eq, sql } from "drizzle-orm";
 
 export const runtime = "nodejs";
 
+// TODO(audit): This endpoint is unauthenticated. Verify Resend webhook signatures
+// (svix) before production to prevent spoofed delivery confirmations.
 export async function POST(req: Request) {
   const evt = await req.json() as { type?: string; data?: { message_id?: string; tags?: any; smtp?: { remote_host?: string; remote_ip?: string } } };
   if (evt.type !== "email.delivered") return NextResponse.json({ ok: true });
