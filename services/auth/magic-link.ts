@@ -1,7 +1,7 @@
 import { db } from "@/lib/db/client";
 import { magicLinkTokens } from "@/lib/db/schema/auth";
 import { users } from "@/lib/db/schema/users";
-import { eq, and, isNull, gt } from "drizzle-orm";
+import { eq, and, isNull, gt, desc } from "drizzle-orm";
 import { randomBytes, createHash, timingSafeEqual } from "node:crypto";
 import { rateLimit } from "@/lib/rate-limit";
 import { AppError } from "@/lib/errors";
@@ -42,6 +42,7 @@ export async function consumeMagicLink({ token }: ConsumeInput): Promise<{ userI
     .select()
     .from(magicLinkTokens)
     .where(and(isNull(magicLinkTokens.consumedAt), gt(magicLinkTokens.expiresAt, new Date())))
+    .orderBy(desc(magicLinkTokens.createdAt))
     .limit(50);
 
   let found: typeof candidates[number] | undefined;
