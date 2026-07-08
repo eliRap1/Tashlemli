@@ -3,11 +3,15 @@ import { db } from "@/lib/db/client";
 import { claims } from "@/lib/db/schema/claims";
 import { claimEvents } from "@/lib/db/schema/claim-events";
 import { eq, sql } from "drizzle-orm";
+import { verifyResendWebhook } from "@/lib/webhook/verify-resend";
 
 export const runtime = "nodejs";
 
 export async function POST(req: Request) {
-  const evt = await req.json() as { type?: string; data?: { message_id?: string; tags?: any; smtp?: { remote_host?: string; remote_ip?: string } } };
+  const { ok, rawBody } = await verifyResendWebhook(req);
+  if (!ok) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+
+  const evt = JSON.parse(rawBody) as { type?: string; data?: { message_id?: string; tags?: any; smtp?: { remote_host?: string; remote_ip?: string } } };
   if (evt.type !== "email.delivered") return NextResponse.json({ ok: true });
   const messageId = evt.data?.message_id;
   if (!messageId) return NextResponse.json({ error: "no_msgid" }, { status: 400 });
