@@ -8,13 +8,17 @@ import { and, eq } from "drizzle-orm";
 import { parseEml } from "@/services/inbound/parser";
 import { matchClaim } from "@/services/inbound/match";
 import { classifyReply } from "@/services/inbound/classifier";
+import { verifyResendWebhook } from "@/lib/webhook/verify-resend";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
 
 export async function POST(req: Request) {
+  const { ok, rawBody } = await verifyResendWebhook(req);
+  if (!ok) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+
   const ct = req.headers.get("content-type") ?? "";
-  const body = ct.includes("application/json") ? await req.json() : null;
+  const body = ct.includes("application/json") ? JSON.parse(rawBody) : null;
   if (!body) return NextResponse.json({ error: "unsupported" }, { status: 415 });
 
   const raw = body.raw ?? body.email?.raw ?? null;

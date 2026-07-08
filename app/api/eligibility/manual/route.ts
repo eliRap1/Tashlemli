@@ -4,6 +4,8 @@ import { db } from "@/lib/db/client";
 import { eligibilityJobs } from "@/lib/db/schema/eligibility-jobs";
 import { eq } from "drizzle-orm";
 import { hashIp } from "@/lib/hash";
+import { rateLimit } from "@/lib/rate-limit";
+import { verifyTurnstile } from "@/lib/turnstile";
 
 // IATA airline codes can include digits (U2 = easyJet, LS = Jet2, 4U = Germanwings).
 const Body = z.object({
@@ -17,14 +19,26 @@ export const runtime = "nodejs";
 export const maxDuration = 30;
 
 export async function POST(req: Request) {
-  const parsed = Body.safeParse(await req.json());
-  if (!parsed.success) return NextResponse.json({ error: "bad_body" }, { status: 400 });
+  // Mirror the guard pattern used in the upload route: rate-limit and bot-check
+  // before touching AviationStack (100 req/month free quota) or the DB.
   const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "0.0.0.0";
+  const ipHash = await hashIp(ip);
+  const rl = await rateLimit(`manual:${ipHash}`, 10, 3600);
+  if (!rl.ok) return NextResponse.json({ error: "rate_limited" }, { status: 429 });
+
+  const raw = await req.json().catch(() => null);
+  if (!raw) return NextResponse.json({ error: "bad_body" }, { status: 400 });
+
+  const turnstile = typeof raw?.turnstile === "string" ? raw.turnstile : "";
+  if (!(await verifyTurnstile(turnstile, ip))) return NextResponse.json({ error: "bot" }, { status: 403 });
+
+  const parsed = Body.safeParse(raw);
+  if (!parsed.success) return NextResponse.json({ error: "bad_body" }, { status: 400 });
 
   const [job] = await db.insert(eligibilityJobs).values({
     blobKey: "manual://no-file",
     blobSha256: "manual-" + Math.random().toString(36).slice(2),
-    ipHash: await hashIp(ip),
+    ipHash,
     status: "queued",
     extracted: {
       flight_number: parsed.data.flight_number.toUpperCase().replace(/\s+/g, ""),

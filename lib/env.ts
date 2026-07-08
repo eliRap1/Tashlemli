@@ -8,6 +8,7 @@ const Schema = z.object({
   AI_GATEWAY_BASE_URL: z.string().url(),
   RESEND_API_KEY: z.string().min(1),
   RESEND_FROM: z.string().min(3),
+  RESEND_WEBHOOK_SECRET: z.string().min(1).optional(),
   BLOB_READ_WRITE_TOKEN: z.string().min(1),
   AVIATIONSTACK_KEY: z.string().min(1),
   UPSTASH_REDIS_REST_URL: z.string().url(),

@@ -35,11 +35,18 @@ export async function GET(
         controller.enqueue(frame(e.id, e));
       }
 
+      // The pg trigger now emits "{claimId}:{rowId}" so we can do a targeted
+      // single-row fetch.  The previous approach re-fetched all rows and took
+      // the last one, which silently dropped the first event when two rows were
+      // inserted in rapid succession (both callbacks saw the same latest row).
       await sql.listen("claim_events", async (payload) => {
-        if (payload !== claimId) return;
-        const recent = await db.select().from(claimEvents).where(eq(claimEvents.claimId, claimId)).orderBy(asc(claimEvents.occurredAt));
-        const last = recent[recent.length - 1];
-        if (last) controller.enqueue(frame(last.id, last));
+        const colonIdx = payload?.indexOf(":");
+        if (colonIdx === -1 || !payload) return;
+        const payloadClaimId = payload.slice(0, colonIdx);
+        const rowId = payload.slice(colonIdx + 1);
+        if (payloadClaimId !== claimId || !rowId) return;
+        const [evt] = await db.select().from(claimEvents).where(eq(claimEvents.id, rowId)).limit(1);
+        if (evt) controller.enqueue(frame(evt.id, evt));
       });
 
       const hb = setInterval(() => controller.enqueue(ENC.encode(`: hb\n\n`)), 25_000);

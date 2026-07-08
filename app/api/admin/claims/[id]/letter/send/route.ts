@@ -41,7 +41,10 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     await db.update(documents).set({ status: "sent_to_airline", blobKey: stored.url, hashSha256: hash }).where(eq(documents.id, doc.id));
   }
 
-  const replyTo = `claims+${c.claimToken.slice(0, 24)}@in.tashlemli.co.il`;
+  // Use the first 12 chars of the claim UUID (unique per claim) as the plus-address
+  // short ID.  JWT tokens all share the same 24-char HS256 header prefix, so
+  // slicing claimToken caused matchClaim to match every claim in the DB.
+  const replyTo = `claims+${c.id.slice(0, 12)}@in.tashlemli.co.il`;
   const messageId = `<${id}.${Date.now()}@${env.APP_BASE_URL.replace(/^https?:\/\//, "")}>`;
   await sendEmail({
     to,

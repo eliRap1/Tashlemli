@@ -8,7 +8,9 @@ export async function matchClaim(plusAddress: string | undefined, references: st
     const m = plusAddress.match(/claims\+([^@]+)@/i);
     if (m) {
       const short = m[1];
-      const [c] = await db.select().from(claims).where(like(claims.claimToken, `${short}%`)).limit(1);
+      // short is the first 12 chars of the claim UUID (set in letter/send/route.ts).
+      // Match against claims.id — UUID prefixes are unique, unlike JWT prefixes.
+      const [c] = await db.select().from(claims).where(like(claims.id, `${short}%`)).limit(1);
       if (c) return c.id;
     }
   }
