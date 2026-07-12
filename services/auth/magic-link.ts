@@ -41,7 +41,7 @@ export async function consumeMagicLink({ token }: ConsumeInput): Promise<{ userI
   const candidates = await db
     .select()
     .from(magicLinkTokens)
-    .where(and(isNull(magicLinkTokens.consumedAt), gt(magicLinkTokens.expiresAt, new Date())))
+    .where(and(isNull(magicLinkTokens.consumedAt), gt(magicLinkTokens.expiresAt, new Date()), eq(magicLinkTokens.tokenHash, tokenHash as any)))
     .limit(50);
 
   let found: typeof candidates[number] | undefined;
