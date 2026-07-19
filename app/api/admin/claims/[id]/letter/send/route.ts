@@ -41,7 +41,12 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     await db.update(documents).set({ status: "sent_to_airline", blobKey: stored.url, hashSha256: hash }).where(eq(documents.id, doc.id));
   }
 
-  const replyTo = `claims+${c.claimToken.slice(0, 24)}@in.tashlemli.co.il`;
+  // Use the claim UUID (hex, no dashes) as the plus-address token.
+  // claimToken is a JWT whose first ~24 chars are an identical HS256 header
+  // prefix for every claim, so slicing the JWT would route all replies to
+  // whichever claim happened to be inserted first.
+  const shortId = c.id.replace(/-/g, "").slice(0, 24);
+  const replyTo = `claims+${shortId}@in.tashlemli.co.il`;
   const messageId = `<${id}.${Date.now()}@${env.APP_BASE_URL.replace(/^https?:\/\//, "")}>`;
   await sendEmail({
     to,

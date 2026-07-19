@@ -1,14 +1,22 @@
 import { db } from "@/lib/db/client";
 import { claims } from "@/lib/db/schema/claims";
 import { claimEvents } from "@/lib/db/schema/claim-events";
-import { like, or, sql } from "drizzle-orm";
+import { or, sql } from "drizzle-orm";
 
 export async function matchClaim(plusAddress: string | undefined, references: string[], inReplyTo: string | null): Promise<string | null> {
   if (plusAddress) {
     const m = plusAddress.match(/claims\+([^@]+)@/i);
     if (m) {
-      const short = m[1];
-      const [c] = await db.select().from(claims).where(like(claims.claimToken, `${short}%`)).limit(1);
+      const short = m[1]; // hex UUID prefix (no dashes), e.g. first 24 chars of c.id.replace(/-/g,'')
+      // Match against the claim UUID stripped of dashes.  The plus-address is
+      // derived from replace(id::text, '-', '') so a prefix match is safe and
+      // unique — unlike a prefix match on claimToken whose first 24 chars are
+      // an identical HS256 JWT header for every claim.
+      const [c] = await db
+        .select({ id: claims.id })
+        .from(claims)
+        .where(sql`replace(${claims.id}::text, '-', '') LIKE ${short + "%"}`)
+        .limit(1);
       if (c) return c.id;
     }
   }

@@ -1,5 +1,6 @@
 import { db } from "@/lib/db/client";
 import { eligibilityJobs } from "@/lib/db/schema/eligibility-jobs";
+import { flights } from "@/lib/db/schema/flights";
 import { claims } from "@/lib/db/schema/claims";
 import { claimEvents } from "@/lib/db/schema/claim-events";
 import { users } from "@/lib/db/schema/users";
@@ -20,6 +21,12 @@ export async function promoteJobToClaim(jobId: string, contact: { email?: string
   const result = job.result as any;
   if (!result.eligible) throw new AppError("PROMOTE_INELIGIBLE", "claim is not eligible", 422);
 
+  // ComputeResult has no airline_iata field.  Derive it from the flight row
+  // that was persisted by the runner (job.flightId is set after lookupFlight).
+  const [flightRow] = job.flightId
+    ? await db.select({ airlineIata: flights.airlineIata }).from(flights).where(eq(flights.id, job.flightId)).limit(1)
+    : [undefined];
+
   let userId: string | undefined;
   if (contact.email || contact.phone) {
     const [u] = await db
@@ -37,7 +44,7 @@ export async function promoteJobToClaim(jobId: string, contact: { email?: string
   const newClaim = {
     userId,
     flightId: job.flightId ?? undefined,
-    airlineIata: result.airline_iata ?? null,
+    airlineIata: flightRow?.airlineIata ?? null,
     jurisdiction: result.jurisdiction ?? "BOTH",
     reasonCategory: extracted?.incident_hint ?? "unknown",
     amountIls: result.amount_ils as number,
@@ -52,6 +59,7 @@ export async function promoteJobToClaim(jobId: string, contact: { email?: string
   if (!inserted) throw new AppError("PROMOTE_DB_FAIL", "could not create claim", 500);
   const token = await signClaimToken(inserted.id);
   const [withToken] = await db.update(claims).set({ claimToken: token }).where(eq(claims.id, inserted.id)).returning();
+  if (!withToken) throw new AppError("PROMOTE_TOKEN_FAIL", "could not persist claim token", 500);
 
   await db.update(eligibilityJobs).set({ claimId: inserted.id }).where(eq(eligibilityJobs.id, jobId));
   await db.insert(claimEvents).values({

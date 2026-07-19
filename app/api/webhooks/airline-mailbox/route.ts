@@ -1,3 +1,10 @@
+// TODO(security): verify Resend webhook HMAC signature before processing.
+// Resend sends a `svix-id`, `svix-timestamp`, and `svix-signature` header
+// triplet that must be validated with RESEND_WEBHOOK_SECRET to prevent
+// unauthenticated callers from injecting fake airline replies / claim events.
+// See https://resend.com/docs/dashboard/webhooks/introduction for the
+// verification algorithm.  Needs a new RESEND_WEBHOOK_SECRET env var and a
+// shared verifyResendWebhook() helper used by all three webhook routes.
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db/client";
 import { claims } from "@/lib/db/schema/claims";

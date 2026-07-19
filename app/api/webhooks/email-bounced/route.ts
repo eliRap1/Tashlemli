@@ -1,3 +1,5 @@
+// TODO(security): add Resend HMAC webhook signature verification — see
+// app/api/webhooks/airline-mailbox/route.ts for the full explanation.
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db/client";
 import { claims } from "@/lib/db/schema/claims";

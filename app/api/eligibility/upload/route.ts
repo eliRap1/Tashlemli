@@ -32,15 +32,20 @@ export async function POST(req: Request) {
   if (!(await verifyTurnstile(turnstile, ip))) return NextResponse.json({ error: "bot" }, { status: 403 });
 
   const inputBuf = Buffer.from(await file.arrayBuffer());
-  const stripped = file.type.startsWith("image/") ? await sharp(inputBuf).rotate().jpeg({ quality: 88 }).toBuffer() : inputBuf;
+  const isImage = file.type.startsWith("image/");
+  const stripped = isImage ? await sharp(inputBuf).rotate().jpeg({ quality: 88 }).toBuffer() : inputBuf;
+  // After sharp processing, images are JPEG regardless of the original format;
+  // non-image uploads (PDF) keep their original MIME type.
+  const pipelineContentType = isImage ? "image/jpeg" : file.type;
   const sha = await sha256Hex(stripped);
   const dedupe = await db.select().from(eligibilityJobs).where(eq(eligibilityJobs.blobSha256, sha)).limit(1);
   if (dedupe[0]) {
     return NextResponse.json({ jobId: dedupe[0].id, sseUrl: `/api/eligibility/${dedupe[0].id}/sse`, deduped: true });
   }
 
-  const blobKey = `eligibility/${sha.slice(0, 2)}/${sha.slice(2, 4)}/${sha}.jpg`;
-  const stored = await putPublic(blobKey, stripped, file.type.startsWith("image/") ? "image/jpeg" : file.type);
+  const ext = isImage ? "jpg" : "pdf";
+  const blobKey = `eligibility/${sha.slice(0, 2)}/${sha.slice(2, 4)}/${sha}.${ext}`;
+  const stored = await putPublic(blobKey, stripped, pipelineContentType);
   const [job] = await db.insert(eligibilityJobs).values({
     blobKey: stored.url,
     blobSha256: sha,
@@ -53,7 +58,7 @@ export async function POST(req: Request) {
   // Run the pipeline inline; Vercel Functions cancel any work the response
   // doesn't await (the previous fire-and-forget pattern silently dropped
   // OCR + lookup + compute on Vercel).
-  await runJob(job.id, stripped, "image/jpeg");
+  await runJob(job.id, stripped, pipelineContentType);
 
   return NextResponse.json({ jobId: job.id, sseUrl: `/api/eligibility/${job.id}/sse` });
 }
