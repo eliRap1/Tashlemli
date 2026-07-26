@@ -6,6 +6,9 @@ import { eq, sql } from "drizzle-orm";
 
 export const runtime = "nodejs";
 
+// TODO(audit): No Resend webhook signature verification. See airline-mailbox/route.ts
+// for the full description and fix approach. An attacker can spoof delivery
+// events and falsely advance claims to the "airline.delivered" state.
 export async function POST(req: Request) {
   const evt = await req.json() as { type?: string; data?: { message_id?: string; tags?: any; smtp?: { remote_host?: string; remote_ip?: string } } };
   if (evt.type !== "email.delivered") return NextResponse.json({ ok: true });

@@ -7,6 +7,9 @@ import { eq, sql } from "drizzle-orm";
 
 export const runtime = "nodejs";
 
+// TODO(audit): No Resend webhook signature verification. See airline-mailbox/route.ts
+// for the full description and fix approach. An attacker can spoof bounce
+// events and stall active claims by falsely marking demand letters as bounced.
 export async function POST(req: Request) {
   const evt = await req.json() as { type?: string; data?: { message_id?: string; reason?: string } };
   if (evt.type !== "email.bounced") return NextResponse.json({ ok: true });
