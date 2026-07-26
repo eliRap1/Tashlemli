@@ -12,6 +12,11 @@ import { classifyReply } from "@/services/inbound/classifier";
 export const runtime = "nodejs";
 export const maxDuration = 60;
 
+// TODO(audit): This endpoint has no Resend webhook signature verification.
+// An unauthenticated POST can inject fake airline replies and advance claim
+// state. Fix: verify the `svix-signature` / `resend-signature` header using
+// RESEND_WEBHOOK_SECRET from env before processing the body.
+// Requires: new RESEND_WEBHOOK_SECRET env var + lib/env.ts update.
 export async function POST(req: Request) {
   const ct = req.headers.get("content-type") ?? "";
   const body = ct.includes("application/json") ? await req.json() : null;

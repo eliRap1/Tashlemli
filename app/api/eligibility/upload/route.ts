@@ -53,7 +53,10 @@ export async function POST(req: Request) {
   // Run the pipeline inline; Vercel Functions cancel any work the response
   // doesn't await (the previous fire-and-forget pattern silently dropped
   // OCR + lookup + compute on Vercel).
-  await runJob(job.id, stripped, "image/jpeg");
+  // Pass the real MIME type so extract.ts can choose the correct AI SDK content
+  // block (type:"image" for rasters, type:"file" for PDFs).
+  const mimeForJob = file.type.startsWith("image/") ? "image/jpeg" : file.type;
+  await runJob(job.id, stripped, mimeForJob);
 
   return NextResponse.json({ jobId: job.id, sseUrl: `/api/eligibility/${job.id}/sse` });
 }

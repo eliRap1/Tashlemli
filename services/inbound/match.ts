@@ -1,14 +1,17 @@
 import { db } from "@/lib/db/client";
 import { claims } from "@/lib/db/schema/claims";
 import { claimEvents } from "@/lib/db/schema/claim-events";
-import { like, or, sql } from "drizzle-orm";
+import { eq, or, sql } from "drizzle-orm";
 
 export async function matchClaim(plusAddress: string | undefined, references: string[], inReplyTo: string | null): Promise<string | null> {
   if (plusAddress) {
     const m = plusAddress.match(/claims\+([^@]+)@/i);
     if (m) {
-      const short = m[1];
-      const [c] = await db.select().from(claims).where(like(claims.claimToken, `${short}%`)).limit(1);
+      // The subaddress is the claim UUID (set in letter/send/route.ts).
+      // Previously used claimToken.slice(0,24) which is non-unique across claims
+      // because all HS256 JWTs share the same 24-char header prefix.
+      const claimId = m[1];
+      const [c] = await db.select().from(claims).where(eq(claims.id, claimId)).limit(1);
       if (c) return c.id;
     }
   }

@@ -41,7 +41,11 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     await db.update(documents).set({ status: "sent_to_airline", blobKey: stored.url, hashSha256: hash }).where(eq(documents.id, doc.id));
   }
 
-  const replyTo = `claims+${c.claimToken.slice(0, 24)}@in.tashlemli.co.il`;
+  // Use the claim UUID directly as the plus-address subaddress.
+  // claimToken.slice(0, 24) was all-identical across claims (every HS256 JWT
+  // starts with the same 24-char header+payload prefix: eyJhbGciOiJIUzI1NiJ9.eyJ),
+  // causing matchClaim to always resolve to the first claim in the database.
+  const replyTo = `claims+${id}@in.tashlemli.co.il`;
   const messageId = `<${id}.${Date.now()}@${env.APP_BASE_URL.replace(/^https?:\/\//, "")}>`;
   await sendEmail({
     to,

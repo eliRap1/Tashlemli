@@ -12,6 +12,13 @@ incident_hint inference: if image shows "CANCELED" stamp → "cancellation"; if 
 Compute confidence 0.0-1.0 based on legibility.`;
 
 export async function extractFromImage(imageBytes: Buffer, contentType: string): Promise<Extracted> {
+  // The AI SDK uses different content block shapes for raster images vs PDFs.
+  // Passing a PDF buffer with type:"image" causes the provider to reject it.
+  const docPart =
+    contentType === "application/pdf"
+      ? ({ type: "file" as const, data: imageBytes, mediaType: "application/pdf" as const })
+      : ({ type: "image" as const, image: imageBytes, mediaType: contentType as "image/jpeg" | "image/png" | "image/webp" | "image/heic" | "image/heif" });
+
   const { object } = await generateObject({
     model: anthropic(HAIKU),
     schema: ExtractedSchema,
@@ -21,7 +28,7 @@ export async function extractFromImage(imageBytes: Buffer, contentType: string):
         role: "user",
         content: [
           { type: "text", text: "Extract the flight document fields." },
-          { type: "image", image: imageBytes, mediaType: contentType },
+          docPart,
         ],
       },
     ],
