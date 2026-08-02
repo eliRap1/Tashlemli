@@ -13,6 +13,11 @@ export const runtime = "nodejs";
 export const maxDuration = 60;
 
 export async function POST(req: Request) {
+  const secret = process.env.AIRLINE_MAILBOX_WEBHOOK_SECRET ?? "";
+  if (!secret) return NextResponse.json({ error: "misconfigured" }, { status: 503 });
+  const provided = req.headers.get("x-webhook-secret") ?? "";
+  if (provided !== secret) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+
   const ct = req.headers.get("content-type") ?? "";
   const body = ct.includes("application/json") ? await req.json() : null;
   if (!body) return NextResponse.json({ error: "unsupported" }, { status: 415 });
