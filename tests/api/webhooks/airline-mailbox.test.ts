@@ -20,10 +20,11 @@ vi.mock("@/lib/db/client", () => ({
 
 describe("airline-mailbox webhook", () => {
   it("classifies and inserts settlement.offered", async () => {
+    process.env.AIRLINE_MAILBOX_WEBHOOK_SECRET = "test-secret";
     const { POST } = await import("@/app/api/webhooks/airline-mailbox/route");
     const req = new Request("http://x", {
       method: "POST",
-      headers: { "content-type": "application/json" },
+      headers: { "content-type": "application/json", "x-webhook-secret": "test-secret" },
       body: JSON.stringify({ from: { email: "claims@lh.com" }, to: [{ email: "claims+abc@in.tashlemli.co.il" }], subject: "Re: …", text: "We offer 2100 ILS." }),
     });
     const r = await POST(req);
