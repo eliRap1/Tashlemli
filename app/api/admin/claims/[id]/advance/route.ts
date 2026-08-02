@@ -33,6 +33,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     return NextResponse.json({ error: "forbidden" }, { status: 403 });
   }
   const { id } = await params;
+  const claimId = z.string().uuid().parse(id);
   const body = await req.json();
   const parsed = Body.safeParse(body);
   if (!parsed.success) return NextResponse.json({ error: "bad_body" }, { status: 400 });
@@ -41,11 +42,11 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
   if (!stage) return NextResponse.json({ error: "unknown_code" }, { status: 400 });
 
   await db.insert(claimEvents).values({
-    claimId: id, code: parsed.data.code, actor: "lawyer",
+    claimId, code: parsed.data.code, actor: "lawyer",
     labelHe: stage.he, labelEn: stage.en,
     metadata: parsed.data.metadata ?? null,
   });
-  await db.update(claims).set({ currentState: parsed.data.code, currentStageIndex: stage.index }).where(eq(claims.id, id));
+  await db.update(claims).set({ currentState: parsed.data.code, currentStageIndex: stage.index }).where(eq(claims.id, claimId));
 
   return NextResponse.json({ ok: true });
 }
