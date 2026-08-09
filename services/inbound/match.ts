@@ -7,7 +7,9 @@ export async function matchClaim(plusAddress: string | undefined, references: st
   if (plusAddress) {
     const m = plusAddress.match(/claims\+([^@]+)@/i);
     if (m) {
-      const short = m[1];
+      // Strip LIKE wildcard chars so a plus-address like claims+%@... can't match all tokens.
+      const short = m[1].replace(/[%_\\]/g, '');
+      if (!short) return null;
       const [c] = await db.select().from(claims).where(like(claims.claimToken, `${short}%`)).limit(1);
       if (c) return c.id;
     }
