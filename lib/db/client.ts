@@ -9,7 +9,7 @@ let _queryClient: ReturnType<typeof postgres> | null = null;
 function getQueryClient() {
   if (_queryClient) return _queryClient;
   _queryClient = postgres(env.DATABASE_URL, {
-    max: env.NODE_ENV === "production" ? 1 : 1,
+    max: 1,
     idle_timeout: 20,
     prepare: false,
   });
