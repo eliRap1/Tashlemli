@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { z } from "zod";
 import { db } from "@/lib/db/client";
 import { claims } from "@/lib/db/schema/claims";
 import { claimEvents } from "@/lib/db/schema/claim-events";
@@ -7,12 +8,21 @@ import { eq } from "drizzle-orm";
 import { classifyReply } from "@/services/inbound/classifier";
 import { isAdmin } from "@/lib/auth/admin";
 
+const Body = z.object({
+  from: z.string().min(1),
+  subject: z.string().min(1),
+  body: z.string().min(1),
+});
+
 export const runtime = "nodejs";
 
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
   if (!(await isAdmin(req))) return NextResponse.json({ error: "forbidden" }, { status: 403 });
   const { id } = await params;
-  const { from, subject, body } = await req.json() as { from: string; subject: string; body: string };
+  const rawBody = await req.json().catch(() => null);
+  const parsed = Body.safeParse(rawBody);
+  if (!parsed.success) return NextResponse.json({ error: "bad_body" }, { status: 400 });
+  const { from, subject, body } = parsed.data;
   const cls = await classifyReply({ from, subject, body });
 
   const codeMap: Record<string, string> = {

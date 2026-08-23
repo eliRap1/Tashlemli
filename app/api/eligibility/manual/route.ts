@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { randomBytes } from "node:crypto";
 import { z } from "zod";
 import { db } from "@/lib/db/client";
 import { eligibilityJobs } from "@/lib/db/schema/eligibility-jobs";
@@ -23,7 +24,7 @@ export async function POST(req: Request) {
 
   const [job] = await db.insert(eligibilityJobs).values({
     blobKey: "manual://no-file",
-    blobSha256: "manual-" + Math.random().toString(36).slice(2),
+    blobSha256: "manual-" + randomBytes(8).toString("hex"),
     ipHash: await hashIp(ip),
     status: "queued",
     extracted: {
