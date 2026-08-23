@@ -8,7 +8,9 @@ export async function matchClaim(plusAddress: string | undefined, references: st
     const m = plusAddress.match(/claims\+([^@]+)@/i);
     if (m) {
       const short = m[1];
-      const [c] = await db.select().from(claims).where(like(claims.claimToken, `${short}%`)).limit(1);
+      // Escape LIKE wildcards to prevent injection via a crafted To: address.
+      const safeShort = short.replace(/[%_\\]/g, '\\$&');
+      const [c] = await db.select().from(claims).where(like(claims.claimToken, `${safeShort}%`)).limit(1);
       if (c) return c.id;
     }
   }

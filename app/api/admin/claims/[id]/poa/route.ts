@@ -18,7 +18,12 @@ export const maxDuration = 60;
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
   if (!(await isAdmin(req))) return NextResponse.json({ error: "forbidden" }, { status: 403 });
   const { id } = await params;
-  const body = await req.json() as { israeli_id: string; date_of_birth: string; address: string };
+  const formData = await req.formData();
+  const body = {
+    israeli_id: formData.get("israeli_id") as string ?? "",
+    date_of_birth: formData.get("date_of_birth") as string ?? "",
+    address: formData.get("address") as string ?? "",
+  };
 
   if (!isValidTeudatZehut(body.israeli_id)) return NextResponse.json({ error: "bad_id" }, { status: 422 });
 
