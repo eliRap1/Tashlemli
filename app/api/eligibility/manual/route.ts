@@ -23,7 +23,7 @@ export async function POST(req: Request) {
 
   const [job] = await db.insert(eligibilityJobs).values({
     blobKey: "manual://no-file",
-    blobSha256: "manual-" + Math.random().toString(36).slice(2),
+    blobSha256: "manual-" + crypto.randomUUID(),
     ipHash: await hashIp(ip),
     status: "queued",
     extracted: {
