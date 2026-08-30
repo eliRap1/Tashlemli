@@ -8,7 +8,12 @@ const redis = new Redis({
 
 export async function rateLimit(key: string, limit: number, windowSeconds: number): Promise<{ ok: boolean; remaining: number }> {
   const k = `rl:${key}:${Math.floor(Date.now() / 1000 / windowSeconds)}`;
-  const count = await redis.incr(k);
-  if (count === 1) await redis.expire(k, windowSeconds);
+  // Pipeline INCR + EXPIRE so both commands are sent atomically in one round-trip,
+  // preventing the window where a key incremented to 1 could expire before EXPIRE
+  // was called (non-atomic INCR then EXPIRE).
+  const p = redis.pipeline();
+  p.incr(k);
+  p.expire(k, windowSeconds);
+  const [count] = await p.exec() as [number, number];
   return { ok: count <= limit, remaining: Math.max(0, limit - count) };
 }
