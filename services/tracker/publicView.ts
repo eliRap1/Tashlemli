@@ -53,10 +53,18 @@ export async function loadPublicView(token: string): Promise<PublicClaimView> {
       actor: e.actor,
       label_he: e.labelHe,
       label_en: e.labelEn,
-      metadata: e.metadata,
+      metadata: stripSensitiveMetadata(e.metadata),
       occurred_at: e.occurredAt.toISOString(),
     })),
   };
+}
+
+/** Remove fields that must not reach the public tracker view. */
+function stripSensitiveMetadata(raw: any): Record<string, unknown> {
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return {};
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { to, messageId, mail_server, letter, ...safe } = raw as Record<string, unknown>;
+  return safe;
 }
 
 export function redactPassenger(full: string, mode: "anonymous" | "public_default"): string {
