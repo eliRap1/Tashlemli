@@ -1,3 +1,4 @@
+// TODO(audit): add Resend webhook signature verification
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db/client";
 import { claims } from "@/lib/db/schema/claims";
