@@ -1,14 +1,19 @@
 import { db } from "@/lib/db/client";
 import { claims } from "@/lib/db/schema/claims";
 import { claimEvents } from "@/lib/db/schema/claim-events";
-import { like, or, sql } from "drizzle-orm";
+import { or, sql } from "drizzle-orm";
+
+/** Escape LIKE metacharacters so a plus-address token cannot act as a wildcard. */
+function escapeLike(s: string): string {
+  return s.replace(/\\/g, "\\\\").replace(/%/g, "\\%").replace(/_/g, "\\_");
+}
 
 export async function matchClaim(plusAddress: string | undefined, references: string[], inReplyTo: string | null): Promise<string | null> {
   if (plusAddress) {
     const m = plusAddress.match(/claims\+([^@]+)@/i);
     if (m) {
-      const short = m[1];
-      const [c] = await db.select().from(claims).where(like(claims.claimToken, `${short}%`)).limit(1);
+      const short = escapeLike(m[1]);
+      const [c] = await db.select().from(claims).where(sql`${claims.claimToken} LIKE ${short + "%"} ESCAPE '\\'`).limit(1);
       if (c) return c.id;
     }
   }
