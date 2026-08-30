@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { z } from "zod";
 import { db } from "@/lib/db/client";
 import { claims } from "@/lib/db/schema/claims";
 import { claimEvents } from "@/lib/db/schema/claim-events";
@@ -9,10 +10,18 @@ import { isAdmin } from "@/lib/auth/admin";
 
 export const runtime = "nodejs";
 
+const Body = z.object({
+  from: z.string().email(),
+  subject: z.string().min(1).max(998),
+  body: z.string().min(1).max(500_000),
+});
+
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
   if (!(await isAdmin(req))) return NextResponse.json({ error: "forbidden" }, { status: 403 });
   const { id } = await params;
-  const { from, subject, body } = await req.json() as { from: string; subject: string; body: string };
+  const parsed = Body.safeParse(await req.json());
+  if (!parsed.success) return NextResponse.json({ error: "bad_body", issues: parsed.error.issues }, { status: 400 });
+  const { from, subject, body } = parsed.data;
   const cls = await classifyReply({ from, subject, body });
 
   const codeMap: Record<string, string> = {
