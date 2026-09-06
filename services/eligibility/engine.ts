@@ -100,10 +100,16 @@ export function compute(input: ComputeInput): ComputeResult {
   }
   if (input.jurisdiction === "EU261") return eu261(input);
   if (input.jurisdiction === "IL2012") return il2012(input);
-  const eu = eu261(input);
+  // BOTH: the top-level statute check returns false when at least one branch is
+  // still in statute (uses &&). We must re-check EU261 independently here
+  // because it has a shorter limitation period (2y) than IL2012 (4y).  Without
+  // this guard a flight between 2-4 years old could incorrectly receive EU261
+  // compensation even though that branch's statute has already run.
+  const euExpired = isOutOfStatute(input.flight_date, "EU261");
+  const eu = euExpired ? null : eu261(input);
   const il = il2012(input);
-  if (!eu.eligible && !il.eligible) return eu;
-  if (!eu.eligible) return il;
-  if (!il.eligible) return eu;
-  return eu.amount_ils >= il.amount_ils ? eu : il;
+  if (!eu?.eligible && !il.eligible) return il; // IL still in statute; return its rejection
+  if (!eu?.eligible) return il;
+  if (!il.eligible) return eu!;
+  return eu!.amount_ils >= il.amount_ils ? eu! : il;
 }

@@ -2,7 +2,7 @@ import { db } from "@/lib/db/client";
 import { magicLinkTokens } from "@/lib/db/schema/auth";
 import { users } from "@/lib/db/schema/users";
 import { eq, and, isNull, gt } from "drizzle-orm";
-import { randomBytes, createHash, timingSafeEqual } from "node:crypto";
+import { randomBytes, createHash } from "node:crypto";
 import { rateLimit } from "@/lib/rate-limit";
 import { AppError } from "@/lib/errors";
 
@@ -38,20 +38,21 @@ export type ConsumeInput = { token: string; ipHash: string };
 
 export async function consumeMagicLink({ token }: ConsumeInput): Promise<{ userId: string }> {
   const tokenHash = createHash("sha256").update(token).digest();
+  // Query by the stored hash directly.  The hash is already the secret-derived
+  // value that proves knowledge of the token, so a DB equality match is safe
+  // and avoids the previous LIMIT(50) linear scan that would silently reject
+  // valid tokens whenever more than 50 unconsumed tokens existed.
   const candidates = await db
     .select()
     .from(magicLinkTokens)
-    .where(and(isNull(magicLinkTokens.consumedAt), gt(magicLinkTokens.expiresAt, new Date())))
-    .limit(50);
+    .where(and(
+      eq(magicLinkTokens.tokenHash, tokenHash as any),
+      isNull(magicLinkTokens.consumedAt),
+      gt(magicLinkTokens.expiresAt, new Date()),
+    ))
+    .limit(1);
 
-  let found: typeof candidates[number] | undefined;
-  for (const row of candidates) {
-    const stored = row.tokenHash as unknown as Buffer;
-    if (stored.length === tokenHash.length && timingSafeEqual(stored, tokenHash)) {
-      found = row;
-      break;
-    }
-  }
+  const found = candidates[0];
   if (!found) throw new AppError("MAGIC_INVALID", "invalid or expired token", 401);
 
   await db.update(magicLinkTokens).set({ consumedAt: new Date() }).where(eq(magicLinkTokens.id, found.id));

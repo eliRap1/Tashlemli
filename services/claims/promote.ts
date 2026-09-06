@@ -2,6 +2,7 @@ import { db } from "@/lib/db/client";
 import { eligibilityJobs } from "@/lib/db/schema/eligibility-jobs";
 import { claims } from "@/lib/db/schema/claims";
 import { claimEvents } from "@/lib/db/schema/claim-events";
+import { flights } from "@/lib/db/schema/flights";
 import { users } from "@/lib/db/schema/users";
 import { eq } from "drizzle-orm";
 import { signClaimToken } from "@/lib/jwt/claim-token";
@@ -20,6 +21,15 @@ export async function promoteJobToClaim(jobId: string, contact: { email?: string
   const result = job.result as any;
   if (!result.eligible) throw new AppError("PROMOTE_INELIGIBLE", "claim is not eligible", 422);
 
+  // Derive airline IATA and jurisdiction from the linked flight row.
+  // ComputeResult does not carry these fields, so reading them off `result`
+  // always yields undefined and falls back to "BOTH" / null.
+  const [flightRow] = job.flightId
+    ? await db.select().from(flights).where(eq(flights.id, job.flightId)).limit(1)
+    : [];
+  const airlineIata = flightRow?.airlineIata ?? null;
+  const jurisdiction = (airlineIata === "LY" ? "BOTH" : "EU261") as "EU261" | "IL2012" | "BOTH";
+
   let userId: string | undefined;
   if (contact.email || contact.phone) {
     const [u] = await db
@@ -37,8 +47,8 @@ export async function promoteJobToClaim(jobId: string, contact: { email?: string
   const newClaim = {
     userId,
     flightId: job.flightId ?? undefined,
-    airlineIata: result.airline_iata ?? null,
-    jurisdiction: result.jurisdiction ?? "BOTH",
+    airlineIata,
+    jurisdiction,
     reasonCategory: extracted?.incident_hint ?? "unknown",
     amountIls: result.amount_ils as number,
     passengerName: extracted?.passenger_name ?? "passenger",
