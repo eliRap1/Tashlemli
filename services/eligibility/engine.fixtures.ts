@@ -9,6 +9,8 @@ type Case = {
 
 const recent = "2026-04-01";
 const old = "2020-01-01";
+// 3 years ago: EU261 is expired (>2y) but IL2012 is still in statute (<4y)
+const threeYearsAgo = "2023-09-06";
 
 export const FIXTURES: Case[] = [
   { name: "EU261 short-haul (<1500km) delay 4h → €250", input: { distance_km: 800, delay_minutes: 240, cancellation: false, jurisdiction: "EU261", reason_category: "carrier_fault", flight_date: recent }, expected: { eligible: true, amount_ils: 1093, grounds: ["EU 261 art.7(1)(a)"] } },
@@ -31,4 +33,6 @@ export const FIXTURES: Case[] = [
   { name: "IL2012 reason=unknown delay 6h → eligible", input: { distance_km: 1500, delay_minutes: 360, cancellation: false, jurisdiction: "IL2012", reason_category: "unknown", flight_date: recent }, expected: { eligible: true, amount_ils: 2450, grounds: ["IL Aviation Services Law §6"] } },
   { name: "EU261 boundary 1499km mid-haul rules apply for short", input: { distance_km: 1499, delay_minutes: 240, cancellation: false, jurisdiction: "EU261", reason_category: "carrier_fault", flight_date: recent }, expected: { eligible: true, amount_ils: 1093, grounds: ["EU 261 art.7(1)(a)"] } },
   { name: "EU261 boundary 1500km mid-haul rules apply for mid", input: { distance_km: 1500, delay_minutes: 200, cancellation: false, jurisdiction: "EU261", reason_category: "carrier_fault", flight_date: recent }, expected: { eligible: true, amount_ils: 1748, grounds: ["EU 261 art.7(1)(b)"] } },
+  // EU261 statute (2y) has run; IL2012 (4y) is still valid → must return IL2012 result only
+  { name: "BOTH flight 3yr old: EU261 expired, IL2012 still valid → IL2012 result", input: { distance_km: 6000, delay_minutes: 480, cancellation: false, jurisdiction: "BOTH", reason_category: "carrier_fault", flight_date: threeYearsAgo }, expected: { eligible: true, amount_ils: 3670, grounds: ["IL Aviation Services Law §6"] } },
 ];
