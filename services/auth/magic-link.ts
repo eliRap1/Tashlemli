@@ -34,7 +34,11 @@ export async function requestMagicLink({ email, ipHash }: RequestInput): Promise
   return { token, userId };
 }
 
-export type ConsumeInput = { token: string; ipHash: string };
+// ipHash is intentionally not used for consumption: magic links are single-use
+// (consumed immediately) and enforcing the originating IP would break the common
+// case of requesting on mobile and clicking on desktop. The DB column is kept
+// for audit purposes (stored at request time by requestMagicLink).
+export type ConsumeInput = { token: string };
 
 export async function consumeMagicLink({ token }: ConsumeInput): Promise<{ userId: string }> {
   const tokenHash = createHash("sha256").update(token).digest();

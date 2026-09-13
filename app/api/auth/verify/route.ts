@@ -11,7 +11,7 @@ export async function GET(req: Request) {
   const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "0.0.0.0";
 
   try {
-    const { userId } = await consumeMagicLink({ token, ipHash: await hashIp(ip) });
+    const { userId } = await consumeMagicLink({ token });
     const { jwt } = await createSession(userId, await hashIp(ip), req.headers.get("user-agent"));
     const res = NextResponse.redirect(new URL("/me", url.origin));
     res.cookies.set(COOKIE_NAME, jwt, {
