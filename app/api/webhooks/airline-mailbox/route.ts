@@ -12,6 +12,12 @@ import { classifyReply } from "@/services/inbound/classifier";
 export const runtime = "nodejs";
 export const maxDuration = 60;
 
+// TODO(security): add Resend webhook HMAC signature verification before
+// production launch. Without it any caller who knows the URL can forge inbound
+// airline replies and advance claims to settlement.offered or airline.denied.
+// Resend signs payloads with svix-id / svix-timestamp / svix-signature headers;
+// verify using the Resend webhook signing secret and reject non-matching requests.
+// See: https://resend.com/docs/dashboard/webhooks/introduction#verify-webhook-signature
 export async function POST(req: Request) {
   const ct = req.headers.get("content-type") ?? "";
   const body = ct.includes("application/json") ? await req.json() : null;
