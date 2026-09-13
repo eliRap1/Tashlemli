@@ -100,8 +100,18 @@ export function compute(input: ComputeInput): ComputeResult {
   }
   if (input.jurisdiction === "EU261") return eu261(input);
   if (input.jurisdiction === "IL2012") return il2012(input);
-  const eu = eu261(input);
-  const il = il2012(input);
+  // BOTH: evaluate each law only if its own statute allows it. This prevents
+  // returning EU261 compensation for a claim that is 2–4 years old (past EU261's
+  // 2-year limit when filed in an Israeli court, but still within IL2012's 4-year
+  // limit). Without the per-branch check, eu261() can return an eligible result
+  // that compute() then prefers over il2012() when the EU amount is higher.
+  const euBarred = isOutOfStatute(input.flight_date, "EU261");
+  const ilBarred = isOutOfStatute(input.flight_date, "IL2012");
+  const eu = euBarred ? null : eu261(input);
+  const il = ilBarred ? null : il2012(input);
+  if (!eu && !il) return reject("out_of_statute", "BOTH");
+  if (!eu) return il!;
+  if (!il) return eu;
   if (!eu.eligible && !il.eligible) return eu;
   if (!eu.eligible) return il;
   if (!il.eligible) return eu;
