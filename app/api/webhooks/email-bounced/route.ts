@@ -7,6 +7,8 @@ import { eq, sql } from "drizzle-orm";
 
 export const runtime = "nodejs";
 
+// TODO(security): add Resend webhook HMAC signature verification (svix-* headers)
+// before production launch — same pattern needed on email-delivered and airline-mailbox.
 export async function POST(req: Request) {
   const evt = await req.json() as { type?: string; data?: { message_id?: string; reason?: string } };
   if (evt.type !== "email.bounced") return NextResponse.json({ ok: true });
