@@ -12,6 +12,9 @@ import { classifyReply } from "@/services/inbound/classifier";
 export const runtime = "nodejs";
 export const maxDuration = 60;
 
+// TODO(security): verify Resend webhook signature (svix-id / svix-signature headers)
+// before processing. Without this check any party can POST forged airline replies and
+// advance claim state. See https://resend.com/docs/dashboard/webhooks/introduction
 export async function POST(req: Request) {
   const ct = req.headers.get("content-type") ?? "";
   const body = ct.includes("application/json") ? await req.json() : null;

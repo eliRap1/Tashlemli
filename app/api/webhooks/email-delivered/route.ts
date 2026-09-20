@@ -6,6 +6,7 @@ import { eq, sql } from "drizzle-orm";
 
 export const runtime = "nodejs";
 
+// TODO(security): verify Resend webhook signature before processing.
 export async function POST(req: Request) {
   const evt = await req.json() as { type?: string; data?: { message_id?: string; tags?: any; smtp?: { remote_host?: string; remote_ip?: string } } };
   if (evt.type !== "email.delivered") return NextResponse.json({ ok: true });

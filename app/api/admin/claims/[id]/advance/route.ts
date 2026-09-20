@@ -40,6 +40,9 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
   const stage = STAGE_LABELS[parsed.data.code];
   if (!stage) return NextResponse.json({ error: "unknown_code" }, { status: 400 });
 
+  const [existing] = await db.select({ id: claims.id }).from(claims).where(eq(claims.id, id)).limit(1);
+  if (!existing) return NextResponse.json({ error: "not_found" }, { status: 404 });
+
   await db.insert(claimEvents).values({
     claimId: id, code: parsed.data.code, actor: "lawyer",
     labelHe: stage.he, labelEn: stage.en,
