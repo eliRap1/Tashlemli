@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { z } from "zod";
 import { db } from "@/lib/db/client";
 import { claims } from "@/lib/db/schema/claims";
 import { documents } from "@/lib/db/schema/documents";
@@ -15,10 +16,18 @@ import { isAdmin } from "@/lib/auth/admin";
 export const runtime = "nodejs";
 export const maxDuration = 60;
 
+const Body = z.object({
+  israeli_id: z.string().min(5).max(20),
+  date_of_birth: z.string().date(),
+  address: z.string().min(1).max(500),
+});
+
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
   if (!(await isAdmin(req))) return NextResponse.json({ error: "forbidden" }, { status: 403 });
   const { id } = await params;
-  const body = await req.json() as { israeli_id: string; date_of_birth: string; address: string };
+  const parsedBody = Body.safeParse(await req.json());
+  if (!parsedBody.success) return NextResponse.json({ error: "bad_body" }, { status: 400 });
+  const body = parsedBody.data;
 
   if (!isValidTeudatZehut(body.israeli_id)) return NextResponse.json({ error: "bad_id" }, { status: 422 });
 

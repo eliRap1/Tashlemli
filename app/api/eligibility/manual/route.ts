@@ -4,6 +4,7 @@ import { db } from "@/lib/db/client";
 import { eligibilityJobs } from "@/lib/db/schema/eligibility-jobs";
 import { eq } from "drizzle-orm";
 import { hashIp } from "@/lib/hash";
+import { rateLimit } from "@/lib/rate-limit";
 
 // IATA airline codes can include digits (U2 = easyJet, LS = Jet2, 4U = Germanwings).
 const Body = z.object({
@@ -20,11 +21,14 @@ export async function POST(req: Request) {
   const parsed = Body.safeParse(await req.json());
   if (!parsed.success) return NextResponse.json({ error: "bad_body" }, { status: 400 });
   const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "0.0.0.0";
+  const ipHash = await hashIp(ip);
+  const rl = await rateLimit(`manual:${ipHash}`, 10, 60 * 60);
+  if (!rl.ok) return NextResponse.json({ error: "rate_limited" }, { status: 429 });
 
   const [job] = await db.insert(eligibilityJobs).values({
     blobKey: "manual://no-file",
     blobSha256: "manual-" + Math.random().toString(36).slice(2),
-    ipHash: await hashIp(ip),
+    ipHash,
     status: "queued",
     extracted: {
       flight_number: parsed.data.flight_number.toUpperCase().replace(/\s+/g, ""),
