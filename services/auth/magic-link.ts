@@ -34,14 +34,14 @@ export async function requestMagicLink({ email, ipHash }: RequestInput): Promise
   return { token, userId };
 }
 
-export type ConsumeInput = { token: string; ipHash: string };
+export type ConsumeInput = { token: string };
 
 export async function consumeMagicLink({ token }: ConsumeInput): Promise<{ userId: string }> {
   const tokenHash = createHash("sha256").update(token).digest();
   const candidates = await db
     .select()
     .from(magicLinkTokens)
-    .where(and(isNull(magicLinkTokens.consumedAt), gt(magicLinkTokens.expiresAt, new Date())))
+    .where(and(isNull(magicLinkTokens.consumedAt), gt(magicLinkTokens.expiresAt, new Date()), eq(magicLinkTokens.tokenHash, tokenHash as any)))
     .limit(50);
 
   let found: typeof candidates[number] | undefined;
