@@ -29,7 +29,7 @@ export async function POST(req: Request) {
     extracted: {
       flight_number: parsed.data.flight_number.toUpperCase().replace(/\s+/g, ""),
       departure_date: parsed.data.departure_date,
-      origin_iata: "TLV", destination_iata: "ATH",
+      origin_iata: null, destination_iata: null,
       passenger_name: null, booking_ref: null, airline_name: null,
       delay_minutes_from_doc: parsed.data.delay_minutes ?? null,
       incident_hint: parsed.data.cancellation ? "cancellation" : "delay",
