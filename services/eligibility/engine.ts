@@ -100,8 +100,12 @@ export function compute(input: ComputeInput): ComputeResult {
   }
   if (input.jurisdiction === "EU261") return eu261(input);
   if (input.jurisdiction === "IL2012") return il2012(input);
-  const eu = eu261(input);
-  const il = il2012(input);
+  // BOTH: apply per-jurisdiction statute gates before calling each branch so that
+  // a time-barred EU261 claim cannot inflate the payout for a still-live IL2012 claim.
+  const euBarred = isOutOfStatute(input.flight_date, "EU261");
+  const ilBarred = isOutOfStatute(input.flight_date, "IL2012");
+  const eu = euBarred ? reject("out_of_statute", "EU261") : eu261(input);
+  const il = ilBarred ? reject("out_of_statute", "IL2012") : il2012(input);
   if (!eu.eligible && !il.eligible) return eu;
   if (!eu.eligible) return il;
   if (!il.eligible) return eu;

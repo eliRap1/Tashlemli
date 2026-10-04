@@ -19,6 +19,7 @@ export async function runJob(jobId: string, fileBytes: Buffer, contentType: stri
     const extracted: Extracted = await extractFromImage(fileBytes, contentType);
     await setStatus(jobId, "looking_up", { extracted });
     await publishJobEvent(jobId, { kind: "extracted", extracted });
+    await publishJobEvent(jobId, { kind: "looking_up" });
 
     const flight = await lookupFlight(extracted.flight_number, extracted.departure_date);
     await setStatus(jobId, "computing", { flightId: flight.id });
@@ -30,7 +31,7 @@ export async function runJob(jobId: string, fileBytes: Buffer, contentType: stri
       delay_minutes: facts.delay_minutes,
       cancellation: facts.cancellation,
       jurisdiction: flight.airlineIata === "LY" ? "BOTH" : "EU261",
-      reason_category: extracted.incident_hint === "cancellation" ? "carrier_fault" : "unknown",
+      reason_category: extracted.incident_hint === "war_related" ? "war_related" : (extracted.incident_hint === "cancellation" ? "carrier_fault" : "unknown"),
       flight_date: extracted.departure_date,
     });
 
