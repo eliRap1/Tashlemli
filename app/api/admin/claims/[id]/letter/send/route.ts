@@ -5,7 +5,7 @@ import { documents } from "@/lib/db/schema/documents";
 import { airlines } from "@/lib/db/schema/airlines";
 import { claimEvents } from "@/lib/db/schema/claim-events";
 import { auditLog } from "@/lib/db/schema/ops";
-import { and, eq } from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";
 import { renderToBuffer } from "@react-pdf/renderer";
 import React from "react";
 import { DemandLetterPDF } from "@/services/letters/pdf";
@@ -24,7 +24,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
 
   const [c] = await db.select().from(claims).where(eq(claims.id, id)).limit(1);
   if (!c) return NextResponse.json({ error: "not_found" }, { status: 404 });
-  const [drafted] = await db.select().from(claimEvents).where(and(eq(claimEvents.claimId, id), eq(claimEvents.code, "demand.drafted"))).limit(1);
+  const [drafted] = await db.select().from(claimEvents).where(and(eq(claimEvents.claimId, id), eq(claimEvents.code, "demand.drafted"))).orderBy(desc(claimEvents.occurredAt)).limit(1);
   const letter = (drafted?.metadata as any)?.letter;
   if (!letter) return NextResponse.json({ error: "no_letter" }, { status: 409 });
   const [air] = c.airlineIata ? await db.select().from(airlines).where(eq(airlines.iata, c.airlineIata)).limit(1) : [];
