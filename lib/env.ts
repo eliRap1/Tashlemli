@@ -14,6 +14,7 @@ const Schema = z.object({
   UPSTASH_REDIS_REST_TOKEN: z.string().min(1),
   APP_BASE_URL: z.string().url(),
   NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
+  EMAIL_WEBHOOK_SECRET: z.string().min(16).optional(),
 });
 
 export type Env = z.infer<typeof Schema>;

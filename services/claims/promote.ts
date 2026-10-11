@@ -48,10 +48,12 @@ export async function promoteJobToClaim(jobId: string, contact: { email?: string
     source: "file_to_claim",
   } as const;
 
-  const [inserted] = await db.insert(claims).values(newClaim).returning();
+  // Compute the JWT before insertion so the row is never readable with a placeholder token.
+  const claimId = randomUUID();
+  const token = await signClaimToken(claimId);
+  const [inserted] = await db.insert(claims).values({ ...newClaim, id: claimId, claimToken: token }).returning();
   if (!inserted) throw new AppError("PROMOTE_DB_FAIL", "could not create claim", 500);
-  const token = await signClaimToken(inserted.id);
-  const [withToken] = await db.update(claims).set({ claimToken: token }).where(eq(claims.id, inserted.id)).returning();
+  const withToken = inserted;
 
   await db.update(eligibilityJobs).set({ claimId: inserted.id }).where(eq(eligibilityJobs.id, jobId));
   await db.insert(claimEvents).values({
