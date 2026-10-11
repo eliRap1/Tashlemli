@@ -2,11 +2,19 @@ import { NextResponse } from "next/server";
 import { db } from "@/lib/db/client";
 import { claims } from "@/lib/db/schema/claims";
 import { claimEvents } from "@/lib/db/schema/claim-events";
+import { env } from "@/lib/env";
 import { eq, sql } from "drizzle-orm";
 
 export const runtime = "nodejs";
 
 export async function POST(req: Request) {
+  const secret = env.EMAIL_WEBHOOK_SECRET;
+  if (secret) {
+    const auth = req.headers.get("authorization") ?? "";
+    if (auth !== `Bearer ${secret}`) {
+      return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+    }
+  }
   const evt = await req.json() as { type?: string; data?: { message_id?: string; tags?: any; smtp?: { remote_host?: string; remote_ip?: string } } };
   if (evt.type !== "email.delivered") return NextResponse.json({ ok: true });
   const messageId = evt.data?.message_id;

@@ -18,7 +18,7 @@ vi.mock("@/lib/db/client", () => {
     values: (vals: any) => ({
       onConflictDoNothing: () => ({ returning: async () => [{ id: userId }] }),
       returning: async () => {
-        inserted = { ...vals, id: "00000000-0000-0000-0000-000000000099", claimToken: "tmp" };
+        inserted = { ...vals, id: "00000000-0000-0000-0000-000000000099" };
         return [inserted];
       },
     }),

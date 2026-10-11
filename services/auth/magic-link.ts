@@ -41,17 +41,16 @@ export async function consumeMagicLink({ token }: ConsumeInput): Promise<{ userI
   const candidates = await db
     .select()
     .from(magicLinkTokens)
-    .where(and(isNull(magicLinkTokens.consumedAt), gt(magicLinkTokens.expiresAt, new Date())))
-    .limit(50);
+    .where(
+      and(
+        eq(magicLinkTokens.tokenHash, tokenHash),
+        isNull(magicLinkTokens.consumedAt),
+        gt(magicLinkTokens.expiresAt, new Date()),
+      ),
+    )
+    .limit(1);
 
-  let found: typeof candidates[number] | undefined;
-  for (const row of candidates) {
-    const stored = row.tokenHash as unknown as Buffer;
-    if (stored.length === tokenHash.length && timingSafeEqual(stored, tokenHash)) {
-      found = row;
-      break;
-    }
-  }
+  const found = candidates[0];
   if (!found) throw new AppError("MAGIC_INVALID", "invalid or expired token", 401);
 
   await db.update(magicLinkTokens).set({ consumedAt: new Date() }).where(eq(magicLinkTokens.id, found.id));

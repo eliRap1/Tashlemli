@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { setAdminCookie } from "@/lib/auth/admin";
 import { hasValidAdminPassword } from "@/lib/auth/admin-credentials";
+import { rateLimit } from "@/lib/rate-limit";
 import { AppError } from "@/lib/errors";
 
 export const runtime = "nodejs";
@@ -9,6 +10,10 @@ export const runtime = "nodejs";
 const Body = z.object({ password: z.string().min(1) });
 
 export async function POST(req: Request) {
+  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "0.0.0.0";
+  const rl = await rateLimit(`admin-login:${ip}`, 10, 60 * 15);
+  if (!rl.ok) return NextResponse.json({ error: "rate_limited" }, { status: 429 });
+
   const parsed = Body.safeParse(await req.json());
   if (!parsed.success) return NextResponse.json({ error: "bad_body" }, { status: 400 });
   if (!hasValidAdminPassword(parsed.data.password)) {
