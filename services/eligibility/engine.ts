@@ -78,7 +78,7 @@ function il2012(input: ComputeInput): ComputeResult {
 
 function reject(reason: NonNullable<ComputeResult["rejection_reason"]>, _jur: string): ComputeResult {
   const messages: Record<string, [string, string]> = {
-    out_of_statute: [`חלפו יותר משש שנים, התביעה התיישנה.`, `Out of statute of limitations.`],
+    out_of_statute: [`התביעה התיישנה.`, `Out of statute of limitations.`],
     delay_too_short: [`העיכוב היה קצר מהסף הנדרש.`, `Delay below threshold.`],
     extraordinary_circumstance: [`האירוע סווג כנסיבה יוצאת דופן.`, `Classified as extraordinary circumstance.`],
     no_jurisdiction: [`לא נמצאה סמכות שיפוט.`, `No applicable jurisdiction.`],
@@ -95,15 +95,24 @@ function reject(reason: NonNullable<ComputeResult["rejection_reason"]>, _jur: st
 }
 
 export function compute(input: ComputeInput): ComputeResult {
-  if (isOutOfStatute(input.flight_date, input.jurisdiction)) {
-    return reject("out_of_statute", input.jurisdiction);
+  if (input.jurisdiction === "EU261") {
+    if (isOutOfStatute(input.flight_date, "EU261")) return reject("out_of_statute", "EU261");
+    return eu261(input);
   }
-  if (input.jurisdiction === "EU261") return eu261(input);
-  if (input.jurisdiction === "IL2012") return il2012(input);
-  const eu = eu261(input);
-  const il = il2012(input);
-  if (!eu.eligible && !il.eligible) return eu;
-  if (!eu.eligible) return il;
-  if (!il.eligible) return eu;
+  if (input.jurisdiction === "IL2012") {
+    if (isOutOfStatute(input.flight_date, "IL2012")) return reject("out_of_statute", "IL2012");
+    return il2012(input);
+  }
+  // BOTH: check each jurisdiction's statute independently so a time-barred law
+  // (EU261: 2 y in IL courts) is not selected over a still-valid one (IL2012: 4 y)
+  // when the flight is between 2–4 years old.
+  const euBarred = isOutOfStatute(input.flight_date, "EU261");
+  const ilBarred = isOutOfStatute(input.flight_date, "IL2012");
+  if (euBarred && ilBarred) return reject("out_of_statute", "BOTH");
+  const eu = euBarred ? null : eu261(input);
+  const il = ilBarred ? null : il2012(input);
+  if (!eu?.eligible && !il?.eligible) return eu ?? il ?? reject("no_jurisdiction", "BOTH");
+  if (!eu?.eligible) return il!;
+  if (!il?.eligible) return eu!;
   return eu.amount_ils >= il.amount_ils ? eu : il;
 }

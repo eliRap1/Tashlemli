@@ -38,11 +38,14 @@ export type ConsumeInput = { token: string; ipHash: string };
 
 export async function consumeMagicLink({ token }: ConsumeInput): Promise<{ userId: string }> {
   const tokenHash = createHash("sha256").update(token).digest();
+  // Fetch a generous window of unexpired tokens and do timing-safe comparison in
+  // the app to avoid a DB-level timing oracle. 500 is enough headroom for any
+  // realistic concurrent-user burst within the 15-minute TTL window.
   const candidates = await db
     .select()
     .from(magicLinkTokens)
     .where(and(isNull(magicLinkTokens.consumedAt), gt(magicLinkTokens.expiresAt, new Date())))
-    .limit(50);
+    .limit(500);
 
   let found: typeof candidates[number] | undefined;
   for (const row of candidates) {
