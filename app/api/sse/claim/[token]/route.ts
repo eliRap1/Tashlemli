@@ -35,6 +35,13 @@ export async function GET(
         controller.enqueue(frame(e.id, e));
       }
 
+      // TODO(audit): the trigger sends only claim_id in the NOTIFY payload so we
+      // re-fetch all events to find the latest. If two events are committed
+      // rapidly, both notification callbacks fetch the same "last" row and one
+      // event is silently dropped. Fix: update the trigger
+      // (scripts/install-triggers.ts) to include the event UUID in the NOTIFY
+      // payload and fetch by that ID, matching the pattern in
+      // app/api/eligibility/[jobId]/sse/route.ts.
       await sql.listen("claim_events", async (payload) => {
         if (payload !== claimId) return;
         const recent = await db.select().from(claimEvents).where(eq(claimEvents.claimId, claimId)).orderBy(asc(claimEvents.occurredAt));
