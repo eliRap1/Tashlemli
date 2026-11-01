@@ -9,6 +9,7 @@ type Case = {
 
 const recent = "2026-04-01";
 const old = "2020-01-01";
+const threeYearsAgo = "2023-10-01"; // past EU261 2y limit, within IL2012 4y limit
 
 export const FIXTURES: Case[] = [
   { name: "EU261 short-haul (<1500km) delay 4h → €250", input: { distance_km: 800, delay_minutes: 240, cancellation: false, jurisdiction: "EU261", reason_category: "carrier_fault", flight_date: recent }, expected: { eligible: true, amount_ils: 1093, grounds: ["EU 261 art.7(1)(a)"] } },
@@ -31,4 +32,8 @@ export const FIXTURES: Case[] = [
   { name: "IL2012 reason=unknown delay 6h → eligible", input: { distance_km: 1500, delay_minutes: 360, cancellation: false, jurisdiction: "IL2012", reason_category: "unknown", flight_date: recent }, expected: { eligible: true, amount_ils: 2450, grounds: ["IL Aviation Services Law §6"] } },
   { name: "EU261 boundary 1499km mid-haul rules apply for short", input: { distance_km: 1499, delay_minutes: 240, cancellation: false, jurisdiction: "EU261", reason_category: "carrier_fault", flight_date: recent }, expected: { eligible: true, amount_ils: 1093, grounds: ["EU 261 art.7(1)(a)"] } },
   { name: "EU261 boundary 1500km mid-haul rules apply for mid", input: { distance_km: 1500, delay_minutes: 200, cancellation: false, jurisdiction: "EU261", reason_category: "carrier_fault", flight_date: recent }, expected: { eligible: true, amount_ils: 1748, grounds: ["EU 261 art.7(1)(b)"] } },
+  // BOTH jurisdiction: EU261 time-barred (>2y), IL2012 delay too short — should not return EU261 eligible result
+  { name: "BOTH: EU261 time-barred (>2y<4y), IL2012 delay-too-short → not eligible", input: { distance_km: 6000, delay_minutes: 250, cancellation: false, jurisdiction: "BOTH", reason_category: "carrier_fault", flight_date: threeYearsAgo }, expected: { eligible: false } },
+  // BOTH jurisdiction: EU261 time-barred (>2y), IL2012 eligible → returns IL2012 only
+  { name: "BOTH: EU261 time-barred (>2y<4y), IL2012 eligible → falls back to IL2012", input: { distance_km: 6000, delay_minutes: 480, cancellation: false, jurisdiction: "BOTH", reason_category: "carrier_fault", flight_date: threeYearsAgo }, expected: { eligible: true, amount_ils: 3670, grounds: ["IL Aviation Services Law §6"] } },
 ];
