@@ -36,13 +36,17 @@ export async function requestMagicLink({ email, ipHash }: RequestInput): Promise
 
 export type ConsumeInput = { token: string; ipHash: string };
 
+// Scan window for timing-safe token lookup. Must exceed the realistic count
+// of unexpired tokens at peak load; 500 gives ~8 hours of headroom at 1 req/min.
+const CONSUME_SCAN_LIMIT = 500;
+
 export async function consumeMagicLink({ token }: ConsumeInput): Promise<{ userId: string }> {
   const tokenHash = createHash("sha256").update(token).digest();
   const candidates = await db
     .select()
     .from(magicLinkTokens)
     .where(and(isNull(magicLinkTokens.consumedAt), gt(magicLinkTokens.expiresAt, new Date())))
-    .limit(50);
+    .limit(CONSUME_SCAN_LIMIT);
 
   let found: typeof candidates[number] | undefined;
   for (const row of candidates) {
@@ -54,6 +58,14 @@ export async function consumeMagicLink({ token }: ConsumeInput): Promise<{ userI
   }
   if (!found) throw new AppError("MAGIC_INVALID", "invalid or expired token", 401);
 
-  await db.update(magicLinkTokens).set({ consumedAt: new Date() }).where(eq(magicLinkTokens.id, found.id));
+  // Atomic consumption: update only if still unconsumed. Protects against
+  // concurrent requests replaying the same token.
+  const updated = await db
+    .update(magicLinkTokens)
+    .set({ consumedAt: new Date() })
+    .where(and(eq(magicLinkTokens.id, found.id), isNull(magicLinkTokens.consumedAt)))
+    .returning({ id: magicLinkTokens.id });
+  if (!updated[0]) throw new AppError("MAGIC_INVALID", "invalid or expired token", 401);
+
   return { userId: found.userId };
 }
