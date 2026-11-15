@@ -25,6 +25,13 @@ export async function runJob(jobId: string, fileBytes: Buffer, contentType: stri
     await publishJobEvent(jobId, { kind: "looked_up", flight_id: flight.id });
 
     const facts = computeFacts(flight);
+    // TODO(audit): only El Al (LY) is mapped to "BOTH" jurisdiction.  Other Israeli
+    // carriers (Israir IS, Arkia IZ) are covered by IL Aviation Services Law §6 as
+    // well.  Extend this mapping when adding full IL carrier support.
+    // TODO(audit): reason_category is never set to "war_related".  The war-related
+    // IL2012 branch in the engine is therefore dead code in the pipeline.  A future
+    // step should derive this from the AviationStack disruption category or a
+    // separate signal (e.g. a date-range database of conflict-driven closures).
     const result = compute({
       distance_km: facts.distance_km,
       delay_minutes: facts.delay_minutes,

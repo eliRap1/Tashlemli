@@ -100,10 +100,14 @@ export function compute(input: ComputeInput): ComputeResult {
   }
   if (input.jurisdiction === "EU261") return eu261(input);
   if (input.jurisdiction === "IL2012") return il2012(input);
-  const eu = eu261(input);
+  // BOTH: enforce each sub-jurisdiction's own statute window independently.
+  // EU261 carries a 2-year IL-court filing limit while IL2012 allows 4 years.
+  // Without this check, a 2-4 year old claim could wrongly receive EU261 compensation
+  // because the shared isOutOfStatute() guard only fires when BOTH limits have expired.
+  const eu = isOutOfStatute(input.flight_date, "EU261") ? null : eu261(input);
   const il = il2012(input);
-  if (!eu.eligible && !il.eligible) return eu;
-  if (!eu.eligible) return il;
-  if (!il.eligible) return eu;
-  return eu.amount_ils >= il.amount_ils ? eu : il;
+  if (eu && il.eligible) return eu.amount_ils >= il.amount_ils ? eu : il;
+  if (eu) return eu;        // eu eligible or eu ineligible but no il fallback
+  if (il.eligible) return il;
+  return reject("out_of_statute", input.jurisdiction);
 }

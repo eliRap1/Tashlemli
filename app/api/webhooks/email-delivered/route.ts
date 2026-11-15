@@ -6,6 +6,10 @@ import { eq, sql } from "drizzle-orm";
 
 export const runtime = "nodejs";
 
+// TODO(audit): add Resend webhook signature verification (svix headers) before
+// production use — same as airline-mailbox.  Without it any caller can falsely
+// advance a claim to "airline.delivered" state.
+
 export async function POST(req: Request) {
   const evt = await req.json() as { type?: string; data?: { message_id?: string; tags?: any; smtp?: { remote_host?: string; remote_ip?: string } } };
   if (evt.type !== "email.delivered") return NextResponse.json({ ok: true });
