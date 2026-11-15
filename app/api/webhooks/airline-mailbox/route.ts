@@ -12,6 +12,12 @@ import { classifyReply } from "@/services/inbound/classifier";
 export const runtime = "nodejs";
 export const maxDuration = 60;
 
+// TODO(audit): add Resend webhook signature verification (svix-id / svix-signature
+// headers) before this endpoint goes to production.  Without it any party that
+// discovers the URL can POST fabricated emails and advance claim state arbitrarily
+// (e.g. inject a false "settlement.offered" event).  Verification uses HMAC-SHA256
+// against RESEND_WEBHOOK_SECRET — no new dependency required.
+
 export async function POST(req: Request) {
   const ct = req.headers.get("content-type") ?? "";
   const body = ct.includes("application/json") ? await req.json() : null;
