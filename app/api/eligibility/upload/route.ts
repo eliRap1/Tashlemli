@@ -33,7 +33,7 @@ export async function POST(req: Request) {
 
   const inputBuf = Buffer.from(await file.arrayBuffer());
   const stripped = file.type.startsWith("image/") ? await sharp(inputBuf).rotate().jpeg({ quality: 88 }).toBuffer() : inputBuf;
-  const sha = await sha256Hex(stripped);
+  const sha = sha256Hex(stripped);
   const dedupe = await db.select().from(eligibilityJobs).where(eq(eligibilityJobs.blobSha256, sha)).limit(1);
   if (dedupe[0]) {
     return NextResponse.json({ jobId: dedupe[0].id, sseUrl: `/api/eligibility/${dedupe[0].id}/sse`, deduped: true });
