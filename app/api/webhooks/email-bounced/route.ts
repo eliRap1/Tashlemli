@@ -1,3 +1,5 @@
+// TODO(audit): Add Resend webhook signature verification (svix-signature header)
+// to prevent spoofed bounce events from advancing claim states.
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db/client";
 import { claims } from "@/lib/db/schema/claims";

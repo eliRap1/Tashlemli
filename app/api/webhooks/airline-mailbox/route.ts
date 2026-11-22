@@ -1,3 +1,7 @@
+// TODO(audit): Add Resend inbound webhook signature verification. Resend signs
+// inbound payloads with an HMAC-SHA256 header (svix-signature). Without it,
+// any party that knows this URL can POST fake airline replies and advance claim
+// states. See https://resend.com/docs/dashboard/webhooks/introduction#signature-verification
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db/client";
 import { claims } from "@/lib/db/schema/claims";
