@@ -20,6 +20,7 @@ export async function GET(
   catch { return new Response("forbidden", { status: 403 }); }
 
   const lastId = req.headers.get("last-event-id") ?? null;
+  let _close: (() => Promise<void>) | null = null;
   const stream = new ReadableStream<Uint8Array>({
     async start(controller) {
       const sql = createListenClient();
@@ -44,8 +45,10 @@ export async function GET(
 
       const hb = setInterval(() => controller.enqueue(ENC.encode(`: hb\n\n`)), 25_000);
       const close = async () => { clearInterval(hb); try { await sql.end(); } catch {} try { controller.close(); } catch {} };
+      _close = close;
       (req as any).signal?.addEventListener?.("abort", close);
     },
+    cancel() { _close?.(); },
   });
 
   return new Response(stream, {
